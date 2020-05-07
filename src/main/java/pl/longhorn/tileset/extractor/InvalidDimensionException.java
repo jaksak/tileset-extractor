@@ -1,4 +1,4 @@
-package pl.longhorn.tilset.extractor;
+package pl.longhorn.tileset.extractor;
 
 public class InvalidDimensionException extends RuntimeException {
 }
