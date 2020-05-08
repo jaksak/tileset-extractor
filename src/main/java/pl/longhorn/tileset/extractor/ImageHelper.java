@@ -1,6 +1,10 @@
 package pl.longhorn.tileset.extractor;
 
+import lombok.val;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,6 +15,11 @@ public class ImageHelper {
     public static boolean pixelIsAlpha(int pixelRGB) {
         int alphaColor = (pixelRGB >> 24) & 0xFF;
         return alphaColor == 0;
+    }
+
+    public static BufferedImage getImage(String fileName) throws URISyntaxException, IOException {
+        val file = getResourcePath(fileName).toFile();
+        return ImageIO.read(file);
     }
 
     public static Stream<BufferedImage> split(BufferedImage image) {

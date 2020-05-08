@@ -6,6 +6,6 @@ import java.util.List;
 
 @Value
 public class ImageComparisonResult {
-    private final int identicalPixels;
+    private final int identicalPixelsAmount;
     private final List<Pixel> usedPixels;
 }

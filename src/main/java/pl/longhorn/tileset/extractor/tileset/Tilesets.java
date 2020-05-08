@@ -11,12 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class TilesetLoader {
+public class Tilesets {
 
     private List<Tileset> tilesets = new LinkedList<>();
 
-    public TilesetLoader(String tilesetDirectory) throws URISyntaxException, IOException {
+    public Tilesets(String tilesetDirectory) throws URISyntaxException, IOException {
         Files.walk(ImageHelper.getResourcePath(tilesetDirectory))
                 .filter(Files::isRegularFile)
                 .forEach(this::addTilesets);
@@ -68,5 +69,9 @@ public class TilesetLoader {
             return false;
         }
         return true;
+    }
+
+    public Stream<Tileset> stream() {
+        return tilesets.stream();
     }
 }
