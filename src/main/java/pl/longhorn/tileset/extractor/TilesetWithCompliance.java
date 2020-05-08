@@ -10,6 +10,6 @@ public class TilesetWithCompliance {
     private final ImageComparisonResult comparisonResult;
 
     public int getCompliance() {
-        return (int) (((float) comparisonResult.getIdenticalPixelsAmount() / tileset.getNonAlphaPixels()) * 100);
+        return (int) (((float) comparisonResult.getIdenticalPixelAmount() / (tileset.getNonAlphaPixels() - comparisonResult.getIgnoredPixelAmount())) * 100);
     }
 }

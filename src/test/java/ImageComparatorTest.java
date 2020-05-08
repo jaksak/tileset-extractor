@@ -22,14 +22,14 @@ public class ImageComparatorTest {
     public void completelyDifferentImageShouldHaveNoIdenticalPixels() throws IOException {
         val result = imageComparator.compare(getParam("completelyDifferent", "noAlpha"));
 
-        assertEquals(0, result.getIdenticalPixelsAmount());
+        assertEquals(0, result.getIdenticalPixelAmount());
     }
 
     @Test
     public void theSameImagesShouldHaveAllIdenticalPixels() throws IOException {
         val result = imageComparator.compare(getParam("noAlpha", "noAlpha"));
 
-        assertEquals(1156, result.getIdenticalPixelsAmount());
+        assertEquals(1156, result.getIdenticalPixelAmount());
     }
 
     @Test

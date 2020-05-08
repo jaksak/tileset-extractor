@@ -16,7 +16,8 @@ public class ImageComparator {
         checkDimension(baseImage, comparedImage);
         int height = baseImage.getHeight();
         int width = baseImage.getWidth();
-        int identicalPixels = 0;
+        int identicalPixelAmount = 0;
+        int ignoredPixelAmount = 0;
         List<Pixel> usedPixels = new LinkedList<>();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -27,13 +28,17 @@ public class ImageComparator {
                 }
 
                 Pixel currentPixel = new Pixel(x, y);
-                if (baseImagePixel == comparedImagePixel && !param.getIgnoredPixels().contains(currentPixel)) {
-                    identicalPixels++;
-                    usedPixels.add(currentPixel);
+                if (baseImagePixel == comparedImagePixel) {
+                    if (param.getIgnoredPixels().contains(currentPixel)) {
+                        ignoredPixelAmount++;
+                    } else {
+                        identicalPixelAmount++;
+                        usedPixels.add(currentPixel);
+                    }
                 }
             }
         }
-        return new ImageComparisonResult(identicalPixels, usedPixels);
+        return new ImageComparisonResult(identicalPixelAmount, ignoredPixelAmount, usedPixels);
     }
 
     private void checkDimension(BufferedImage baseImage, BufferedImage comparedImage) {
