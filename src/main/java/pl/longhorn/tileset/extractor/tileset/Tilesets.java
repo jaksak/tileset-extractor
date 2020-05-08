@@ -2,6 +2,7 @@ package pl.longhorn.tileset.extractor.tileset;
 
 import lombok.val;
 import pl.longhorn.tileset.extractor.ImageHelper;
+import pl.longhorn.tileset.extractor.ProjectConfig;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -27,20 +28,20 @@ public class Tilesets {
         try {
             val tilsetsImage = ImageIO.read(path.toFile());
             ImageHelper.split(tilsetsImage)
-                    .forEach(this::tryAddTilset);
+                    .forEach(this::tryAddTileset);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void tryAddTilset(BufferedImage image) {
+    private void tryAddTileset(BufferedImage image) {
         int nonAlpaPixels = getNonAlpaPixels(image);
         if (nonAlpaPixels > 0 && isUnique(image)) {
-            tilesets.add(new Tileset(image, nonAlpaPixels, getGroundProbability(image)));
+            tilesets.add(new Tileset(image, nonAlpaPixels, getGroundProbability(image, nonAlpaPixels)));
         }
     }
 
-    private int getGroundProbability(BufferedImage image) {
+    private int getGroundProbability(BufferedImage image, int nonAlpaPixels) {
         int groundProbability = 0;
         int widthMiddle = image.getWidth() / 2;
         int heightMiddle = image.getHeight() / 2;
@@ -51,7 +52,7 @@ public class Tilesets {
                 }
             }
         }
-        return groundProbability;
+        return groundProbability * (ProjectConfig.TILESET_WIDTH * ProjectConfig.TILESET_HEIGHT / nonAlpaPixels);
     }
 
     private int getNonAlpaPixels(BufferedImage image) {

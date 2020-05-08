@@ -41,7 +41,7 @@ public class TilesetExtractor {
         List<Pixel> ignoredPixels = new LinkedList<>();
         while (true) {
             val bestMatchedElement = getBestMatched(image, ignoredPixels);
-            if (bestMatchedElement.isPresent() && bestMatchedElement.get().getCompliance() > 5) {
+            if (bestMatchedElement.isPresent() && bestMatchedElement.get().getCompliance() > ProjectConfig.MIN_COMPLIANCE) {
                 elements.add(new MapElement(bestMatchedElement.get().getTileset()));
                 ignoredPixels.addAll(bestMatchedElement.get().getComparisonResult().getUsedPixels());
             } else {
