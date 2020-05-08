@@ -2,7 +2,6 @@ package pl.longhorn.tileset.extractor.tileset;
 
 import lombok.val;
 import pl.longhorn.tileset.extractor.ImageHelper;
-import pl.longhorn.tileset.extractor.ProjectConfig;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -52,7 +51,7 @@ public class Tilesets {
                 }
             }
         }
-        return baseProbability * (ProjectConfig.TILESET_WIDTH * ProjectConfig.TILESET_HEIGHT / nonAlpaPixels);
+        return baseProbability / nonAlpaPixels;
     }
 
     private int getNonAlpaPixels(BufferedImage image) {
