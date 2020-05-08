@@ -44,22 +44,35 @@ public class TilesetExtractor {
     private MapEntry countEntry(BufferedImage image, int id) {
         List<MapElement> elements = new LinkedList<>();
         List<Pixel> ignoredPixels = new LinkedList<>();
+        List<TilesetWithCompliance> matchedElements = getMatchedElements(image, ignoredPixels);
         while (true) {
-            val bestMatchedElement = getBestMatched(image, ignoredPixels);
+            Optional<TilesetWithCompliance> bestMatchedElement = getBestMatched(matchedElements);
             if (bestMatchedElement.isPresent() && bestMatchedElement.get().getCompliance() > ProjectConfig.MIN_COMPLIANCE) {
                 elements.add(new MapElement(bestMatchedElement.get().getTileset()));
                 ignoredPixels.addAll(bestMatchedElement.get().getComparisonResult().getUsedPixels());
             } else {
                 break;
             }
+            matchedElements = updateMatched(image, ignoredPixels, matchedElements);
         }
         return new MapEntry(id, elements);
     }
 
-    private Optional<TilesetWithCompliance> getBestMatched(BufferedImage image, List<Pixel> ignoredPixels) {
+    private Optional<TilesetWithCompliance> getBestMatched(List<TilesetWithCompliance> matchedElements) {
+        return matchedElements.stream().max(Comparator.comparingInt(TilesetWithCompliance::getCompliance));
+    }
+
+    private List<TilesetWithCompliance> updateMatched(BufferedImage image, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
+        return matchedElements.stream()
+                .map(tilesetWithCompliance -> getCompliance(tilesetWithCompliance.getTileset(), image, ignoredPixels))
+                .collect(Collectors.toList());
+    }
+
+    private List<TilesetWithCompliance> getMatchedElements(BufferedImage image, List<Pixel> ignoredPixels) {
         return tilesets.stream()
                 .map(tileset -> getCompliance(tileset, image, ignoredPixels))
-                .max(Comparator.comparingInt(TilesetWithCompliance::getCompliance));
+                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > ProjectConfig.MIN_COMPLIANCE)
+                .collect(Collectors.toList());
     }
 
     private TilesetWithCompliance getCompliance(Tileset tileset, BufferedImage image, List<Pixel> ignoredPixels) {

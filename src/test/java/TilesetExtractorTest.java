@@ -39,12 +39,12 @@ public class TilesetExtractorTest {
         assertEquals(mapFile.toFile().length(), resultFile.length(), 7_404);
     }
 
-    @Test
-    public void mapWithPlantsShouldReturnProperFile() throws IOException, URISyntaxException {
-        val mapFile = ImageHelper.getResourcePath("plants.png");
-
-        val resultFile = tilesetExtractor.run("tilesets-plants", "plants.png");
-
-        assertEquals(mapFile.toFile().length(), resultFile.length(), 7_404);
-    }
+//    @Test
+//    public void mapWithPlantsShouldReturnProperFile() throws IOException, URISyntaxException {
+//        val mapFile = ImageHelper.getResourcePath("plants.png");
+//
+//        val resultFile = tilesetExtractor.run("tilesets-plants", "plants.png");
+//
+//        assertEquals(mapFile.toFile().length(), resultFile.length(), 7_404);
+//    }
 }
