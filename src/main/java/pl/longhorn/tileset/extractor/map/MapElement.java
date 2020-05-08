@@ -1,10 +1,9 @@
 package pl.longhorn.tileset.extractor.map;
 
 import lombok.Value;
-
-import java.awt.image.BufferedImage;
+import pl.longhorn.tileset.extractor.tileset.Tileset;
 
 @Value
 public class MapElement {
-    private final BufferedImage image;
+    private final Tileset tileset;
 }

@@ -7,6 +7,7 @@ import pl.longhorn.tileset.extractor.map.MapEntry;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 import java.util.Iterator;
 
 public class MapPainter {
@@ -19,12 +20,14 @@ public class MapPainter {
         for (int i = 0; elementIterator.hasNext(); i++) {
             int width = CoordinatesFinder.getWidth(i, entriesInRow);
             int height = CoordinatesFinder.getHeight(i, entriesInRow);
-            elementIterator.next().getElements().forEach(element -> draw(element, width, height, graphic));
+            val elements = elementIterator.next().getElements();
+            elements.sort(Comparator.comparingInt(element -> element.getTileset().getGroundProbability()));
+            elements.forEach(element -> draw(element, width, height, graphic));
         }
         return result;
     }
 
     private void draw(MapElement element, int width, int height, Graphics result) {
-        result.drawImage(element.getImage(), width, height, null);
+        result.drawImage(element.getTileset().getImage(), width, height, null);
     }
 }

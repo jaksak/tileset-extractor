@@ -16,10 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TilesetExtractor {
@@ -36,7 +33,7 @@ public class TilesetExtractor {
                 .collect(Collectors.toList());
         val painterParam = new MapPainterParam(mapImage.getWidth(), mapImage.getHeight(), entries);
         val result = mapPainter.paint(painterParam);
-        ImageIO.write(result, "PNG", Paths.get("build", "result.png").toFile());
+        ImageIO.write(result, "PNG", Paths.get("build", UUID.randomUUID().toString() + ".png").toFile());
     }
 
     private static MapEntry countEntry(BufferedImage image) {
@@ -45,7 +42,7 @@ public class TilesetExtractor {
         while (true) {
             val bestMatchedElement = getBestMatched(image, ignoredPixels);
             if (bestMatchedElement.isPresent() && bestMatchedElement.get().getCompliance() > 5) {
-                elements.add(new MapElement(bestMatchedElement.get().getTileset().getImage()));
+                elements.add(new MapElement(bestMatchedElement.get().getTileset()));
                 ignoredPixels.addAll(bestMatchedElement.get().getComparisonResult().getUsedPixels());
             } else {
                 break;

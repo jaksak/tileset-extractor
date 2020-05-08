@@ -9,4 +9,5 @@ public class Tileset {
 
     private final BufferedImage image;
     private final int nonAlphaPixels;
+    private final int groundProbability;
 }

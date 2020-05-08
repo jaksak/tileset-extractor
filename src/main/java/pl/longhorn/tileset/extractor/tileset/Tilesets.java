@@ -36,8 +36,22 @@ public class Tilesets {
     private void tryAddTilset(BufferedImage image) {
         int nonAlpaPixels = getNonAlpaPixels(image);
         if (nonAlpaPixels > 0 && isUnique(image)) {
-            tilesets.add(new Tileset(image, nonAlpaPixels));
+            tilesets.add(new Tileset(image, nonAlpaPixels, getGroundProbability(image)));
         }
+    }
+
+    private int getGroundProbability(BufferedImage image) {
+        int groundProbability = 0;
+        int widthMiddle = image.getWidth() / 2;
+        int heightMiddle = image.getHeight() / 2;
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                if (!ImageHelper.pixelIsAlpha(image.getRGB(x, y))) {
+                    groundProbability += Math.abs(widthMiddle - x) + Math.abs(heightMiddle - y);
+                }
+            }
+        }
+        return groundProbability;
     }
 
     private int getNonAlpaPixels(BufferedImage image) {
