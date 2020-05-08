@@ -4,6 +4,8 @@ import lombok.val;
 import pl.longhorn.tileset.extractor.comparator.ImageComparator;
 import pl.longhorn.tileset.extractor.comparator.ImageComparatorParam;
 import pl.longhorn.tileset.extractor.comparator.Pixel;
+import pl.longhorn.tileset.extractor.comparator.image.data.CachedImage;
+import pl.longhorn.tileset.extractor.comparator.image.data.CachedImageFactory;
 import pl.longhorn.tileset.extractor.map.MapElement;
 import pl.longhorn.tileset.extractor.map.MapEntry;
 import pl.longhorn.tileset.extractor.map.painter.MapPainter;
@@ -12,7 +14,6 @@ import pl.longhorn.tileset.extractor.tileset.Tileset;
 import pl.longhorn.tileset.extractor.tileset.Tilesets;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -32,6 +33,7 @@ public class TilesetExtractor {
         val mapImage = ImageHelper.getImage(mapFilename);
         AtomicInteger nextMapEntryId = new AtomicInteger();
         List<MapEntry> entries = ImageHelper.split(mapImage).parallel()
+                .map(CachedImageFactory::create)
                 .map(image -> countEntry(image, nextMapEntryId.getAndIncrement()))
                 .collect(Collectors.toList());
         val painterParam = new MapPainterParam(mapImage.getWidth(), mapImage.getHeight(), entries);
@@ -41,7 +43,7 @@ public class TilesetExtractor {
         return fileResult;
     }
 
-    private MapEntry countEntry(BufferedImage image, int id) {
+    private MapEntry countEntry(CachedImage image, int id) {
         List<MapElement> elements = new LinkedList<>();
         List<Pixel> ignoredPixels = new LinkedList<>();
         List<TilesetWithCompliance> matchedElements = getMatchedElements(image, ignoredPixels);
@@ -62,21 +64,21 @@ public class TilesetExtractor {
         return matchedElements.stream().max(Comparator.comparingInt(TilesetWithCompliance::getCompliance));
     }
 
-    private List<TilesetWithCompliance> updateMatched(BufferedImage image, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
+    private List<TilesetWithCompliance> updateMatched(CachedImage image, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
         return matchedElements.stream()
                 .map(tilesetWithCompliance -> getCompliance(tilesetWithCompliance.getTileset(), image, ignoredPixels))
                 .collect(Collectors.toList());
     }
 
-    private List<TilesetWithCompliance> getMatchedElements(BufferedImage image, List<Pixel> ignoredPixels) {
+    private List<TilesetWithCompliance> getMatchedElements(CachedImage image, List<Pixel> ignoredPixels) {
         return tilesets.stream()
                 .map(tileset -> getCompliance(tileset, image, ignoredPixels))
                 .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > ProjectConfig.MIN_COMPLIANCE)
                 .collect(Collectors.toList());
     }
 
-    private TilesetWithCompliance getCompliance(Tileset tileset, BufferedImage image, List<Pixel> ignoredPixels) {
-        ImageComparatorParam param = new ImageComparatorParam(image, tileset.getImage(), ignoredPixels);
+    private TilesetWithCompliance getCompliance(Tileset tileset, CachedImage image, List<Pixel> ignoredPixels) {
+        ImageComparatorParam param = new ImageComparatorParam(image, tileset, ignoredPixels);
         val comparisonResult = imageComparator.compare(param);
         return new TilesetWithCompliance(tileset, comparisonResult);
     }

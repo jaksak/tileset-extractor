@@ -37,4 +37,16 @@ public class ImageHelper {
     public static Path getResourcePath(String directory) throws URISyntaxException {
         return Paths.get(ClassLoader.getSystemResource(directory).toURI());
     }
+
+    public static int[][] getRgb(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int[][] rgbs = new int[width][height];
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                rgbs[x][y] = image.getRGB(x, y);
+            }
+        }
+        return rgbs;
+    }
 }

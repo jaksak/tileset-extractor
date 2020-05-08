@@ -4,9 +4,10 @@ import org.junit.jupiter.api.Test;
 import pl.longhorn.tileset.extractor.comparator.ImageComparator;
 import pl.longhorn.tileset.extractor.comparator.ImageComparatorParam;
 import pl.longhorn.tileset.extractor.comparator.InvalidDimensionException;
+import pl.longhorn.tileset.extractor.comparator.image.data.CachedImage;
+import pl.longhorn.tileset.extractor.comparator.image.data.CachedImageFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -41,8 +42,8 @@ public class ImageComparatorTest {
         return new ImageComparatorParam(getImage(imageName1), getImage(imageName2), Collections.emptyList());
     }
 
-    private BufferedImage getImage(String fileName) throws IOException {
-        return ImageIO.read(new File(
-                Objects.requireNonNull(getClass().getClassLoader().getResource(fileName + ".png")).getFile()));
+    private CachedImage getImage(String fileName) throws IOException {
+        return CachedImageFactory.create(ImageIO.read(new File(
+                Objects.requireNonNull(getClass().getClassLoader().getResource(fileName + ".png")).getFile())));
     }
 }

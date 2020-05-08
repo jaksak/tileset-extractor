@@ -1,8 +1,8 @@
 package pl.longhorn.tileset.extractor.comparator;
 
 import lombok.val;
+import pl.longhorn.tileset.extractor.comparator.image.data.CachedImage;
 
-import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class ImageComparator {
         return new ImageComparisonResult(identicalPixelAmount, ignoredPixelAmount, usedPixels);
     }
 
-    private void checkDimension(BufferedImage baseImage, BufferedImage comparedImage) {
+    private void checkDimension(CachedImage baseImage, CachedImage comparedImage) {
         if (baseImage.getWidth() != comparedImage.getWidth() || baseImage.getHeight() != comparedImage.getHeight()) {
             throw new InvalidDimensionException();
         }
