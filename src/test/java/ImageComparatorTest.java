@@ -1,56 +1,48 @@
 import lombok.val;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.longhorn.tileset.extractor.ImageComparator;
-import pl.longhorn.tileset.extractor.InvalidDimensionException;
+import pl.longhorn.tileset.extractor.comparator.ImageComparator;
+import pl.longhorn.tileset.extractor.comparator.ImageComparatorParam;
+import pl.longhorn.tileset.extractor.comparator.InvalidDimensionException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ImageComparatorTest {
 
-    ImageComparator imageComparator;
+    ImageComparator imageComparator = new ImageComparator();
 
     @Test
     public void completelyDifferentImageShouldHaveNoIdenticalPixels() throws IOException {
-        val baseImage = getImage("completelyDifferent");
-        val otherImage = getImage("noAlpha");
-
-        val result = imageComparator.compare(baseImage, otherImage);
+        val result = imageComparator.compare(getParam("completelyDifferent", "noAlpha"));
 
         assertEquals(0, result.getIdenticalPixels());
     }
 
     @Test
     public void theSameImagesShouldHaveAllIdenticalPixels() throws IOException {
-        val baseImage = getImage("noAlpha");
-        val comparedImage = getImage("noAlpha");
-
-        val result = imageComparator.compare(baseImage, comparedImage);
+        val result = imageComparator.compare(getParam("noAlpha", "noAlpha"));
 
         assertEquals(1156, result.getIdenticalPixels());
     }
 
     @Test
     public void invalidDimensionShouldThrowException() throws IOException {
-        val baseImage = getImage("base");
-        val tooLargeImage = getImage("tooLarge");
-
-        Assertions.assertThrows(InvalidDimensionException.class, () -> imageComparator.compare(baseImage, tooLargeImage));
+        Assertions.assertThrows(InvalidDimensionException.class, () -> imageComparator.compare(getParam("base", "tooLarge")));
     }
 
-    @BeforeEach
-    public void init() {
-        imageComparator = new ImageComparator();
+    private ImageComparatorParam getParam(String imageName1, String imageName2) throws IOException {
+        return new ImageComparatorParam(getImage(imageName1), getImage(imageName2), Collections.emptyList());
     }
 
     private BufferedImage getImage(String fileName) throws IOException {
         return ImageIO.read(new File(
-                getClass().getClassLoader().getResource(fileName + ".png").getFile()));
+                Objects.requireNonNull(getClass().getClassLoader().getResource(fileName + ".png")).getFile()));
     }
 }
