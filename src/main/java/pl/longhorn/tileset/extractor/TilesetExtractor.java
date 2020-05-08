@@ -13,10 +13,12 @@ import pl.longhorn.tileset.extractor.tileset.Tilesets;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class TilesetExtractor {
@@ -25,18 +27,21 @@ public class TilesetExtractor {
     private static ImageComparator imageComparator = new ImageComparator();
     private static MapPainter mapPainter = new MapPainter();
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        tilesets = new Tilesets("tileset");
-        val mapImage = ImageHelper.getImage("map.png");
+    public File run(String tilesetDirectory, String mapFilename) throws IOException, URISyntaxException {
+        tilesets = new Tilesets(tilesetDirectory);
+        val mapImage = ImageHelper.getImage(mapFilename);
+        AtomicInteger nextMapEntryId = new AtomicInteger();
         List<MapEntry> entries = ImageHelper.split(mapImage).parallel()
-                .map(TilesetExtractor::countEntry)
+                .map(image -> countEntry(image, nextMapEntryId.getAndIncrement()))
                 .collect(Collectors.toList());
         val painterParam = new MapPainterParam(mapImage.getWidth(), mapImage.getHeight(), entries);
         val result = mapPainter.paint(painterParam);
-        ImageIO.write(result, "PNG", Paths.get("build", UUID.randomUUID().toString() + ".png").toFile());
+        val fileResult = Paths.get("build", UUID.randomUUID().toString() + ".png").toFile();
+        ImageIO.write(result, "PNG", fileResult);
+        return fileResult;
     }
 
-    private static MapEntry countEntry(BufferedImage image) {
+    private MapEntry countEntry(BufferedImage image, int id) {
         List<MapElement> elements = new LinkedList<>();
         List<Pixel> ignoredPixels = new LinkedList<>();
         while (true) {
@@ -48,16 +53,16 @@ public class TilesetExtractor {
                 break;
             }
         }
-        return new MapEntry(elements);
+        return new MapEntry(id, elements);
     }
 
-    private static Optional<TilesetWithCompliance> getBestMatched(BufferedImage image, List<Pixel> ignoredPixels) {
+    private Optional<TilesetWithCompliance> getBestMatched(BufferedImage image, List<Pixel> ignoredPixels) {
         return tilesets.stream()
                 .map(tileset -> getCompliance(tileset, image, ignoredPixels))
                 .max(Comparator.comparingInt(TilesetWithCompliance::getCompliance));
     }
 
-    private static TilesetWithCompliance getCompliance(Tileset tileset, BufferedImage image, List<Pixel> ignoredPixels) {
+    private TilesetWithCompliance getCompliance(Tileset tileset, BufferedImage image, List<Pixel> ignoredPixels) {
         ImageComparatorParam param = new ImageComparatorParam(image, tileset.getImage(), ignoredPixels);
         val comparisonResult = imageComparator.compare(param);
         return new TilesetWithCompliance(tileset, comparisonResult);

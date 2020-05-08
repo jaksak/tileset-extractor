@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 public class Tilesets {
 
     private List<Tileset> tilesets = new LinkedList<>();
+    private static int nextId = 0;
 
     public Tilesets(String tilesetDirectory) throws URISyntaxException, IOException {
         Files.walk(ImageHelper.getResourcePath(tilesetDirectory))
@@ -36,11 +37,11 @@ public class Tilesets {
     private void tryAddTileset(BufferedImage image) {
         int nonAlpaPixels = getNonAlpaPixels(image);
         if (nonAlpaPixels > 0 && isUnique(image)) {
-            tilesets.add(new Tileset(image, nonAlpaPixels, getGroundProbability(image, nonAlpaPixels)));
+            tilesets.add(new Tileset(nextId++, image, nonAlpaPixels, getGroundProbability(image, nonAlpaPixels)));
         }
     }
 
-    private int getGroundProbability(BufferedImage image, int nonAlpaPixels) {
+    private int getGroundProbability(BufferedImage image, int nonAlphaPixels) {
         int baseProbability = 0;
         int widthMiddle = image.getWidth() / 2;
         int heightMiddle = image.getHeight() / 2;
@@ -51,7 +52,7 @@ public class Tilesets {
                 }
             }
         }
-        return baseProbability / nonAlpaPixels;
+        return baseProbability / nonAlphaPixels;
     }
 
     private int getNonAlpaPixels(BufferedImage image) {
