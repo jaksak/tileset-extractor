@@ -34,14 +34,14 @@ public class ExtractorController {
 
     @PostMapping("task/remote")
     public TaskView addTask(@RequestBody RemoteTaskInputData inputData) {
-        ExtractorTask task = new ExtractorTask(getTilesets(inputData.getTilesetsName()), getMap(inputData));
+        ExtractorTask task = new ExtractorTask(getTilesets(inputData.getTilesetsName()), getMap(inputData), inputData.getMinCompliance());
         taskService.addTask(task);
         return new TaskView(task);
     }
 
     @PostMapping("task/local")
-    public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName) throws IOException {
-        ExtractorTask task = new ExtractorTask(getTilesets(tilesetsName), getImage(file));
+    public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance) throws IOException {
+        ExtractorTask task = new ExtractorTask(getTilesets(tilesetsName), getImage(file), minCompliance);
         taskService.addTask(task);
         return new TaskView(task);
     }

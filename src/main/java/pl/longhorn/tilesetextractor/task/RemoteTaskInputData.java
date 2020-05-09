@@ -6,4 +6,5 @@ import lombok.Value;
 public class RemoteTaskInputData {
     private String mapFileName;
     private String tilesetsName;
+    private int minCompliance;
 }

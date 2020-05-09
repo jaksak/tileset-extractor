@@ -1,6 +1,7 @@
 document.getElementById('addLocalTaskSubmit').addEventListener('click', function () {
     const formData = new FormData();
     formData.append('tilesetsName', document.getElementById('addLocalTaskTilesetsName').value);
+    formData.append('minCompliance', document.getElementById('addLocalTaskMinCompliance').value);
     formData.append('file', document.getElementById('addLocalTaskFile').files[0]);
 
     fetch('./task/local', {
@@ -43,7 +44,10 @@ document.getElementById("addRemoteTaskSubmit").addEventListener("click", functio
 let savedTaskData = [];
 
 function showResultTooltip(event, id) {
-    document.getElementById('resultImgTooltip').src = './task/result?id=' + id;
+    const imgTooltip = document.getElementById('resultImgTooltip');
+    imgTooltip.src = './task/result?id=' + id;
+    imgTooltip.style.maxWidth = (window.innerWidth - event.pageX) * 0.9 + 'px';
+    imgTooltip.style.maxHeight = (window.innerHeight - event.pageY) * 0.9 + 'px';
     const tooltip = document.getElementById('resultTooltip');
     tooltip.style.visibility = 'visible';
     tooltip.style.left = event.pageX + 'px';
@@ -66,7 +70,7 @@ function prepareTask(order, content) {
     td.innerHTML = content.status;
     container.appendChild(td);
     td = document.createElement("td");
-    td.innerHTML = content.time.substring(0, 19);
+    td.innerHTML = content.time.substring(0, 19).replace('T', ' ');
     container.appendChild(td);
     td = document.createElement("td");
     if (content.status === 'FINISHED') {
@@ -94,12 +98,6 @@ function updateTask(order, content) {
 function updateTasks(freshTask) {
     let order = 0;
     freshTask.forEach(content => updateTask(order++, content))
-    //$('td[data-toggle="tooltip"]').tooltip('disable');
-    // $('td[data-toggle="tooltip"]').tooltip({
-    //     animated: 'fade',
-    //     placement: 'bottom',
-    //     html: true
-    // });
 }
 
 function refreshTaskData() {

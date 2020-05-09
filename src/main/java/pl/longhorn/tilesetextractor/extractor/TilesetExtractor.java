@@ -2,7 +2,6 @@ package pl.longhorn.tilesetextractor.extractor;
 
 import lombok.val;
 import pl.longhorn.tilesetextractor.ImageHelper;
-import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.comparator.ImageComparator;
 import pl.longhorn.tilesetextractor.comparator.ImageComparatorParam;
 import pl.longhorn.tilesetextractor.comparator.Pixel;
@@ -13,7 +12,6 @@ import pl.longhorn.tilesetextractor.map.MapEntry;
 import pl.longhorn.tilesetextractor.map.painter.MapPainter;
 import pl.longhorn.tilesetextractor.map.painter.MapPainterParam;
 import pl.longhorn.tilesetextractor.tileset.Tileset;
-import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -25,14 +23,14 @@ import java.util.stream.Collectors;
 
 public class TilesetExtractor {
 
-    public BufferedImage run(Tilesets tilesets, BufferedImage mapImage) {
+    public BufferedImage run(TilesetExtractorParam param) {
         AtomicInteger nextMapEntryId = new AtomicInteger();
-        List<MapEntry> entries = ImageHelper.split(mapImage).parallel()
+        List<MapEntry> entries = ImageHelper.split(param.getMapImage()).parallel()
                 .map(CachedImageFactory::create)
-                .map(mapPart -> new EntryExtractorParam(nextMapEntryId.getAndIncrement(), mapPart, tilesets))
+                .map(mapPart -> new EntryExtractorParam(nextMapEntryId.getAndIncrement(), mapPart, param.getTilesets(), param.getMinCompliance()))
                 .map(this::countEntry)
                 .collect(Collectors.toList());
-        val painterParam = new MapPainterParam(mapImage.getWidth(), mapImage.getHeight(), entries);
+        val painterParam = new MapPainterParam(param.getMapImage().getWidth(), param.getMapImage().getHeight(), entries);
         return MapPainter.paint(painterParam);
     }
 
@@ -48,7 +46,7 @@ public class TilesetExtractor {
             } else {
                 break;
             }
-            matchedElements = updateMatched(param.getMapPart(), ignoredPixels, matchedElements);
+            matchedElements = updateMatched(param, ignoredPixels, matchedElements);
         }
         return new MapEntry(param.getId(), elements);
     }
@@ -57,17 +55,17 @@ public class TilesetExtractor {
         return matchedElements.stream().max(Comparator.comparingInt(TilesetWithCompliance::getCompliance));
     }
 
-    private List<TilesetWithCompliance> updateMatched(CachedImage image, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
+    private List<TilesetWithCompliance> updateMatched(EntryExtractorParam param, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
         return matchedElements.stream()
-                .map(tilesetWithCompliance -> getCompliance(tilesetWithCompliance.getTileset(), image, ignoredPixels))
-                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > ProjectConfig.MIN_COMPLIANCE)
+                .map(tilesetWithCompliance -> getCompliance(tilesetWithCompliance.getTileset(), param.getMapPart(), ignoredPixels))
+                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > param.getMinCompliance())
                 .collect(Collectors.toList());
     }
 
     private List<TilesetWithCompliance> getMatchedElements(EntryExtractorParam param, List<Pixel> ignoredPixels) {
         return param.getTilesets().stream()
                 .map(tileset -> getCompliance(tileset, param.getMapPart(), ignoredPixels))
-                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > ProjectConfig.MIN_COMPLIANCE)
+                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > param.getMinCompliance())
                 .collect(Collectors.toList());
     }
 

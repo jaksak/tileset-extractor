@@ -17,12 +17,14 @@ public class ExtractorTask {
     private BufferedImage mapImage;
     private BufferedImage result;
     private LocalDateTime time;
+    private int minCompliance;
 
-    public ExtractorTask(Tilesets tilesets, BufferedImage mapImage) {
+    public ExtractorTask(Tilesets tilesets, BufferedImage mapImage, int minCompliance) {
         this.id = UUID.randomUUID().toString();
         this.status = ExtractorTaskStatus.PENDING;
         this.tilesets = tilesets;
         this.mapImage = mapImage;
         this.time = LocalDateTime.now();
+        this.minCompliance = minCompliance;
     }
 }

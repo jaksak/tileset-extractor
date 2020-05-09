@@ -4,6 +4,7 @@ import lombok.val;
 import org.springframework.stereotype.Service;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
+import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -30,7 +31,8 @@ public class TaskService {
     private void processTask(ExtractorTask task) {
         task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.IN_PROGRESS);
-        val result = tilesetExtractor.run(task.getTilesets(), task.getMapImage());
+        val extractorParam = new TilesetExtractorParam(task.getTilesets(), task.getMapImage(), task.getMinCompliance());
+        val result = tilesetExtractor.run(extractorParam);
         task.setTime(LocalDateTime.now());
         task.setResult(result);
         task.setStatus(ExtractorTaskStatus.FINISHED);
