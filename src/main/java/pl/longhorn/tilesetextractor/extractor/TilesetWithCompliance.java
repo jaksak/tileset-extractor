@@ -1,4 +1,4 @@
-package pl.longhorn.tilesetextractor;
+package pl.longhorn.tilesetextractor.extractor;
 
 import lombok.Value;
 import lombok.val;
@@ -6,7 +6,7 @@ import pl.longhorn.tilesetextractor.comparator.ImageComparisonResult;
 import pl.longhorn.tilesetextractor.tileset.Tileset;
 
 @Value
-public class TilesetWithCompliance {
+class TilesetWithCompliance {
     private final Tileset tileset;
     private final ImageComparisonResult comparisonResult;
 

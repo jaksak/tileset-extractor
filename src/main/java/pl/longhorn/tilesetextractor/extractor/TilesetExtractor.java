@@ -1,6 +1,8 @@
-package pl.longhorn.tilesetextractor;
+package pl.longhorn.tilesetextractor.extractor;
 
 import lombok.val;
+import pl.longhorn.tilesetextractor.ImageHelper;
+import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.comparator.ImageComparator;
 import pl.longhorn.tilesetextractor.comparator.ImageComparatorParam;
 import pl.longhorn.tilesetextractor.comparator.Pixel;

@@ -2,6 +2,7 @@ package pl.longhorn.tilesetextractor;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
