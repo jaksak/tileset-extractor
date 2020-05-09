@@ -74,7 +74,7 @@ function prepareTask(order, content) {
     container.appendChild(td);
     td = document.createElement("td");
     if (content.status === 'FINISHED') {
-        td.innerHTML = '[ X ]';
+        td.innerHTML = '[ ✔ ]';
         td.addEventListener('mouseover', event => showResultTooltip(event, content.id));
         td.addEventListener('mouseout', hideResultTooltip);
     }
