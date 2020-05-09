@@ -9,8 +9,10 @@ document.getElementById('addLocalTaskSubmit').addEventListener('click', function
         body: formData
     })
         .then((response) => response.json())
-        .then((result) => {
-            console.log('Success:', result);
+        .then((r) => {
+            if (!r.ok) {
+                alert(r.message);
+            }
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -35,7 +37,7 @@ document.getElementById("addRemoteTaskSubmit").addEventListener("click", functio
     })
         .then(r => {
             if (!r.ok) {
-                r.text().then(text => alert(text))
+                alert(r.message);
             }
         })
         .catch(currentResponse => alert(response.statusText))
@@ -77,6 +79,7 @@ function prepareTask(order, content) {
         td.innerHTML = '[ ✔ ]';
         td.addEventListener('mouseover', event => showResultTooltip(event, content.id));
         td.addEventListener('mouseout', hideResultTooltip);
+        td.addEventListener('click', () => window.open('./task/result?id=' + content.id));
     }
     container.appendChild(td);
     return container;
@@ -91,7 +94,12 @@ function updateTask(order, content) {
         const element = document.getElementById(order);
         element.parentNode.removeChild(element);
         const domTask = prepareTask(order, content);
-        document.getElementById("taskListContent").insertBefore(domTask, document.getElementById("taskListContent").childNodes[order - 1]);
+        const appender = document.getElementById("taskListContent").childNodes[order + 1];
+        if (appender != null) {
+            document.getElementById("taskListContent").insertBefore(domTask, document.getElementById("taskListContent").childNodes[order + 1]);
+        } else {
+            document.getElementById("taskListContent").appendChild(domTask);
+        }
     }
 }
 
