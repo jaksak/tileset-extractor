@@ -2,6 +2,7 @@ package pl.longhorn.tileset.extractor.tileset;
 
 import lombok.val;
 import pl.longhorn.tileset.extractor.ImageHelper;
+import pl.longhorn.tileset.extractor.ProjectConfig;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -35,19 +36,20 @@ public class Tilesets {
     }
 
     private void tryAddTileset(BufferedImage image) {
-        int nonAlphaPixels = getNonAlpaPixels(image);
-        if (nonAlphaPixels > 0 && isUnique(image)) {
-            tilesets.add(new Tileset(nextId++, image, nonAlphaPixels, getGroundProbability(image, nonAlphaPixels), ImageHelper.getRgb(image)));
+        val imageRgb = ImageHelper.getRgb(image);
+        int nonAlphaPixels = getNonAlpaPixels(imageRgb);
+        if (nonAlphaPixels > 0 && isUnique(imageRgb)) {
+            tilesets.add(new Tileset(nextId++, image, nonAlphaPixels, getGroundProbability(imageRgb, nonAlphaPixels), imageRgb));
         }
     }
 
-    private int getGroundProbability(BufferedImage image, int nonAlphaPixels) {
+    private int getGroundProbability(int[][] imageRgb, int nonAlphaPixels) {
         int baseProbability = 0;
-        int widthMiddle = image.getWidth() / 2;
-        int heightMiddle = image.getHeight() / 2;
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                if (!ImageHelper.pixelIsAlpha(image.getRGB(x, y))) {
+        int widthMiddle = ProjectConfig.TILESET_WIDTH / 2;
+        int heightMiddle = ProjectConfig.TILESET_HEIGHT / 2;
+        for (int x = 0; x < imageRgb.length; x++) {
+            for (int y = 0; y < imageRgb[0].length; y++) {
+                if (!ImageHelper.pixelIsAlpha(imageRgb[x][y])) {
                     baseProbability += Math.abs(widthMiddle - x) + Math.abs(heightMiddle - y);
                 }
             }
@@ -55,11 +57,11 @@ public class Tilesets {
         return baseProbability / nonAlphaPixels;
     }
 
-    private int getNonAlpaPixels(BufferedImage image) {
+    private int getNonAlpaPixels(int[][] rgbData) {
         int nonAlpaPixels = 0;
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                if (!ImageHelper.pixelIsAlpha(image.getRGB(x, y))) {
+        for (int x = 0; x < rgbData.length; x++) {
+            for (int y = 0; y < rgbData[0].length; y++) {
+                if (!ImageHelper.pixelIsAlpha(rgbData[x][y])) {
                     nonAlpaPixels++;
                 }
             }
@@ -67,16 +69,16 @@ public class Tilesets {
         return nonAlpaPixels;
     }
 
-    private boolean isUnique(BufferedImage image) {
+    private boolean isUnique(int[][] imageRgb) {
         return tilesets.stream()
-                .noneMatch(compared -> bufferedImagesEqual(image, compared.getImage()));
+                .noneMatch(compared -> rgbAreEquals(imageRgb, compared));
     }
 
-    private boolean bufferedImagesEqual(BufferedImage img1, BufferedImage img2) {
-        if (img1.getWidth() == img2.getWidth() && img1.getHeight() == img2.getHeight()) {
-            for (int x = 0; x < img1.getWidth(); x++) {
-                for (int y = 0; y < img1.getHeight(); y++) {
-                    if (img1.getRGB(x, y) != img2.getRGB(x, y))
+    private boolean rgbAreEquals(int[][] img1, Tileset img2) {
+        if (img1.length == img2.getWidth() && img1[0].length == img2.getHeight()) {
+            for (int x = 0; x < img2.getWidth(); x++) {
+                for (int y = 0; y < img2.getHeight(); y++) {
+                    if (img1[x][y] != img2.getRGB(x, y))
                         return false;
                 }
             }

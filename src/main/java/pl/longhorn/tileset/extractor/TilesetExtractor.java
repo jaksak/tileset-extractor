@@ -13,12 +13,13 @@ import pl.longhorn.tileset.extractor.map.painter.MapPainterParam;
 import pl.longhorn.tileset.extractor.tileset.Tileset;
 import pl.longhorn.tileset.extractor.tileset.Tilesets;
 
-import javax.imageio.ImageIO;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class TilesetExtractor {
     private static ImageComparator imageComparator = new ImageComparator();
     private static MapPainter mapPainter = new MapPainter();
 
-    public File run(String tilesetDirectory, String mapFilename) throws IOException, URISyntaxException {
+    public BufferedImage run(String tilesetDirectory, String mapFilename) throws IOException, URISyntaxException {
         tilesets = new Tilesets(tilesetDirectory);
         val mapImage = ImageHelper.getImage(mapFilename);
         AtomicInteger nextMapEntryId = new AtomicInteger();
@@ -38,9 +39,7 @@ public class TilesetExtractor {
                 .collect(Collectors.toList());
         val painterParam = new MapPainterParam(mapImage.getWidth(), mapImage.getHeight(), entries);
         val result = mapPainter.paint(painterParam);
-        val fileResult = Paths.get("build", UUID.randomUUID().toString() + ".png").toFile();
-        ImageIO.write(result, "PNG", fileResult);
-        return fileResult;
+        return result;
     }
 
     private MapEntry countEntry(CachedImage image, int id) {
@@ -49,7 +48,7 @@ public class TilesetExtractor {
         List<TilesetWithCompliance> matchedElements = getMatchedElements(image, ignoredPixels);
         while (true) {
             Optional<TilesetWithCompliance> bestMatchedElement = getBestMatched(matchedElements);
-            if (bestMatchedElement.isPresent() && bestMatchedElement.get().getCompliance() > ProjectConfig.MIN_COMPLIANCE) {
+            if (bestMatchedElement.isPresent()) {
                 elements.add(new MapElement(bestMatchedElement.get().getTileset()));
                 ignoredPixels.addAll(bestMatchedElement.get().getComparisonResult().getUsedPixels());
             } else {
@@ -67,6 +66,7 @@ public class TilesetExtractor {
     private List<TilesetWithCompliance> updateMatched(CachedImage image, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
         return matchedElements.stream()
                 .map(tilesetWithCompliance -> getCompliance(tilesetWithCompliance.getTileset(), image, ignoredPixels))
+                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > ProjectConfig.MIN_COMPLIANCE)
                 .collect(Collectors.toList());
     }
 
