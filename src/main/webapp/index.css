@@ -1,0 +1,7 @@
+.tooltip {
+    visibility: hidden;
+    position: absolute;
+    opacity: 1;
+    background-color: black;
+}
+

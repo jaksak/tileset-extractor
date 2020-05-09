@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ImageComparator {
 
-    public ImageComparisonResult compare(ImageComparatorParam param) {
+    public static ImageComparisonResult compare(ImageComparatorParam param) {
         val baseImage = param.getBaseImage();
         val comparedImage = param.getComparedImage();
         checkDimension(baseImage, comparedImage);
@@ -40,7 +40,7 @@ public class ImageComparator {
         return new ImageComparisonResult(identicalPixelAmount, ignoredPixelAmount, usedPixels);
     }
 
-    private void checkDimension(CachedImage baseImage, CachedImage comparedImage) {
+    private static void checkDimension(CachedImage baseImage, CachedImage comparedImage) {
         if (baseImage.getWidth() != comparedImage.getWidth() || baseImage.getHeight() != comparedImage.getHeight()) {
             throw new InvalidDimensionException();
         }

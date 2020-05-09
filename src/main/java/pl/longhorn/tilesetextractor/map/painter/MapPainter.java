@@ -13,7 +13,7 @@ import java.util.Iterator;
 
 public class MapPainter {
 
-    public BufferedImage paint(MapPainterParam param) {
+    public static BufferedImage paint(MapPainterParam param) {
         BufferedImage result = new BufferedImage(param.getWidth(), param.getHeight(), BufferedImage.TYPE_INT_ARGB);
         val graphic = result.createGraphics();
         int entriesInRow = param.getWidth() / ProjectConfig.TILESET_WIDTH;
@@ -28,7 +28,7 @@ public class MapPainter {
         return result;
     }
 
-    private void draw(MapElement element, int width, int height, Graphics result) {
+    private static void draw(MapElement element, int width, int height, Graphics result) {
         result.drawImage(element.getTileset().getImage(), width, height, null);
     }
 }
