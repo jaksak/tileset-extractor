@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,6 +19,7 @@ public class TaskService {
 
     public void addTask(ExtractorTask task) {
         if (isNotBusy()) {
+            task.setTime(LocalDateTime.now());
             tasks.add(task);
             executorService.submit(() -> processTask(task));
         } else {
@@ -26,8 +28,10 @@ public class TaskService {
     }
 
     private void processTask(ExtractorTask task) {
+        task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.IN_PROGRESS);
         val result = tilesetExtractor.run(task.getTilesets(), task.getMapImage());
+        task.setTime(LocalDateTime.now());
         task.setResult(result);
         task.setStatus(ExtractorTaskStatus.FINISHED);
     }
@@ -35,7 +39,7 @@ public class TaskService {
     private boolean isNotBusy() {
         return tasks.stream()
                 .filter(task -> ExtractorTaskStatus.PENDING.equals(task.getStatus()))
-                .count() <= ProjectConfig.MAX_PENDING_TASK;
+                .count() < ProjectConfig.MAX_PENDING_TASK;
     }
 
     public LimitedQueue<ExtractorTask> getTasks() {

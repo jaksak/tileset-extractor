@@ -69,8 +69,8 @@ function prepareTask(order, content) {
     td.innerHTML = content.time.substring(0, 19);
     container.appendChild(td);
     td = document.createElement("td");
-    td.innerHTML = '[ X ]';
     if (content.status === 'FINISHED') {
+        td.innerHTML = '[ X ]';
         td.addEventListener('mouseover', event => showResultTooltip(event, content.id));
         td.addEventListener('mouseout', hideResultTooltip);
     }
