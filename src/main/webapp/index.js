@@ -54,8 +54,8 @@ function showImageTooltip(event, source) {
     imgTooltip.style.maxWidth = (window.innerWidth - event.pageX) * 0.9 + 'px';
     imgTooltip.style.maxHeight = (window.innerHeight - event.pageY) * 0.9 + 'px';
     const tooltip = document.getElementById('imageTooltip');
-    tooltip.style.left = event.pageX + 'px';
-    tooltip.style.top = event.pageY + 'px';
+    tooltip.style.left = event.pageX + 3 + 'px';
+    tooltip.style.top = event.pageY + 3 + 'px';
     shouldShowTooltip = true;
 }
 
@@ -134,10 +134,6 @@ function prepareTask(order, content) {
             diffPreview.addEventListener('click', () => window.open('./task/diff?id=' + content.id));
             td.appendChild(diffPreview);
         }
-        const deleteSpan = document.createElement('span');
-        deleteSpan.innerText = '[X]';
-        deleteSpan.onclick = () => deleteTask(content.id);
-        td.appendChild(deleteSpan);
     }
     container.appendChild(td);
     return container;
