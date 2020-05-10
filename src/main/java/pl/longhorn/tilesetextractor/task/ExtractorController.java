@@ -30,16 +30,16 @@ public class ExtractorController {
 
     @PostMapping("task/remote")
     public TaskView addTask(@RequestBody RemoteTaskInputData inputData) {
-        validateTilesetsName(inputData.getTilesetsName());
-        ExtractorTask task = new ExtractorTask(inputData.getTilesetsName(), inputData.getMapFileName(), getMap(inputData), inputData.getMinCompliance());
+        ExtractorTask task = new ExtractorTask(inputData.getTilesetsName(), inputData.getMapFileName(), getMap(inputData), inputData.getMinCompliance(), inputData.isHasDiff());
+        validateTask(task);
         taskService.addTask(task);
         return new TaskView(task);
     }
 
     @PostMapping("task/local")
-    public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance) throws IOException {
-        validateTilesetsName(tilesetsName);
-        ExtractorTask task = new ExtractorTask(tilesetsName, file.getOriginalFilename(), getImage(file), minCompliance);
+    public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance, @RequestParam boolean hasDiff) throws IOException {
+        ExtractorTask task = new ExtractorTask(tilesetsName, file.getOriginalFilename(), getImage(file), minCompliance, hasDiff);
+        validateTask(task);
         taskService.addTask(task);
         return new TaskView(task);
     }
@@ -76,6 +76,45 @@ public class ExtractorController {
         if (task.isPresent()) {
             val image = task.get().getResult();
             attachImage(response, image);
+        }
+    }
+
+    @ResponseBody
+    @GetMapping("task/diff")
+    public void getDiff(@RequestParam String id, HttpServletResponse response) throws IOException {
+        val task = taskService.getTask(id);
+        if (task.isPresent()) {
+            val image = task.get().getDiff();
+            attachImage(response, image);
+        }
+    }
+
+    @DeleteMapping("task")
+    public void deleteTask(@RequestBody String id) {
+        taskService.remove(id);
+    }
+
+    private void validateTask(ExtractorTask task) {
+        validateTilesetsName(task.getTilesetsName());
+        validateMinCompliance(task.getMinCompliance());
+        validateUnique(task);
+    }
+
+    private void validateUnique(ExtractorTask task) {
+        boolean isNotUnique = taskService.getTasks().stream()
+                .anyMatch(other -> isNotShallowUnique(task, other));
+        if (isNotUnique) {
+            throw new RepeatTaskException();
+        }
+    }
+
+    private boolean isNotShallowUnique(ExtractorTask task, ExtractorTask other) {
+        return task.getInputName().equals(other.getInputName()) && task.getMinCompliance() == other.getMinCompliance() && task.getTilesetsName().equals(other.getTilesetsName());
+    }
+
+    private void validateMinCompliance(int minCompliance) {
+        if (minCompliance < 1 || minCompliance > 99) {
+            throw new IllegalMinComplianceException();
         }
     }
 

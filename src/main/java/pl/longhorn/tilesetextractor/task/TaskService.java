@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
+import pl.longhorn.tilesetextractor.map.painter.DiffPainter;
 import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -35,16 +37,37 @@ public class TaskService {
     }
 
     private void processTask(ExtractorTask task) {
+        Tilesets tilesets = processPrepareTilesets(task);
+        val result = processExtractor(task, tilesets);
+        processDiff(task, result);
+        processPostTask(task);
+    }
+
+    private void processDiff(ExtractorTask task, BufferedImage result) {
+        if (task.isHasDiff()) {
+            val diffImage = DiffPainter.paint(task.getInput(), result);
+            task.setDiff(diffImage);
+        }
+    }
+
+    private void processPostTask(ExtractorTask task) {
         task.setTime(LocalDateTime.now());
-        task.setStatus(ExtractorTaskStatus.PREPARE_TILESETS);
-        val tilesets = getTilesets(task.getTilesetsName());
+        task.setStatus(ExtractorTaskStatus.FINISHED);
+    }
+
+    private BufferedImage processExtractor(ExtractorTask task, Tilesets tilesets) {
         task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.IN_PROGRESS);
         val extractorParam = new TilesetExtractorParam(tilesets, task.getInput(), task.getMinCompliance());
         val result = tilesetExtractor.run(extractorParam);
-        task.setTime(LocalDateTime.now());
         task.setResult(result);
-        task.setStatus(ExtractorTaskStatus.FINISHED);
+        return result;
+    }
+
+    private Tilesets processPrepareTilesets(ExtractorTask task) {
+        task.setTime(LocalDateTime.now());
+        task.setStatus(ExtractorTaskStatus.PREPARE_TILESETS);
+        return getTilesets(task.getTilesetsName());
     }
 
     private boolean isNotBusy() {
@@ -83,5 +106,12 @@ public class TaskService {
         Tilesets tilesets = new Tilesets(tilesetsName);
         tilesetsByName.put(tilesetsName, tilesets);
         return tilesets;
+    }
+
+    public void remove(String id) {
+        val task = getTask(id);
+        if (task.isPresent() && ExtractorTaskStatus.FINISHED.equals(task.get().getStatus())) {
+            tasks.remove(task.get());
+        }
     }
 }

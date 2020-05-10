@@ -42,7 +42,8 @@ public class TilesetExtractor {
             Optional<TilesetWithCompliance> bestMatchedElement = getBestMatched(matchedElements);
             if (bestMatchedElement.isPresent()) {
                 TilesetWithCompliance tilesetsToAdd = bestMatchedElement.get();
-                elements.add(new MapElement(tilesetsToAdd.getTileset()));
+                val mapElement = new MapElement(tilesetsToAdd.getTileset(), tilesetsToAdd.getComparisonResult().getIdenticalPixelAmount());
+                elements.add(mapElement);
                 matchedElements.remove(tilesetsToAdd);
                 ignoredPixels.addAll(tilesetsToAdd.getComparisonResult().getUsedPixels());
             } else {
@@ -60,14 +61,14 @@ public class TilesetExtractor {
     private List<TilesetWithCompliance> updateMatched(EntryExtractorParam param, List<Pixel> ignoredPixels, List<TilesetWithCompliance> matchedElements) {
         return matchedElements.stream()
                 .map(tilesetWithCompliance -> getCompliance(tilesetWithCompliance.getTileset(), param.getMapPart(), ignoredPixels))
-                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > param.getMinCompliance())
+                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() >= param.getMinCompliance())
                 .collect(Collectors.toList());
     }
 
     private List<TilesetWithCompliance> getMatchedElements(EntryExtractorParam param, List<Pixel> ignoredPixels) {
         return param.getTilesets().stream()
                 .map(tileset -> getCompliance(tileset, param.getMapPart(), ignoredPixels))
-                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() > param.getMinCompliance())
+                .filter(tilesetWithCompliance -> tilesetWithCompliance.getCompliance() >= param.getMinCompliance())
                 .collect(Collectors.toList());
     }
 

@@ -6,4 +6,5 @@ import pl.longhorn.tilesetextractor.tileset.Tileset;
 @Value
 public class MapElement {
     private final Tileset tileset;
+    private final int matchedPixelsAmount;
 }

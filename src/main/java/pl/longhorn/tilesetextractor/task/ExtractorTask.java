@@ -16,10 +16,12 @@ public class ExtractorTask {
     private String inputName;
     private BufferedImage input;
     private BufferedImage result;
+    private BufferedImage diff;
     private LocalDateTime time;
     private int minCompliance;
+    private boolean hasDiff;
 
-    public ExtractorTask(String tilesetsName, String inputName, BufferedImage input, int minCompliance) {
+    public ExtractorTask(String tilesetsName, String inputName, BufferedImage input, int minCompliance, boolean hasDiff) {
         this.id = UUID.randomUUID().toString();
         this.status = ExtractorTaskStatus.PENDING;
         this.inputName = inputName;
@@ -27,5 +29,6 @@ public class ExtractorTask {
         this.input = input;
         this.time = LocalDateTime.now();
         this.minCompliance = minCompliance;
+        this.hasDiff = hasDiff;
     }
 }

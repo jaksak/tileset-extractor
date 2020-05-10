@@ -22,8 +22,9 @@
                     <th scope="col">Status</th>
                     <th scope="col">Input name</th>
                     <th scope="col">Tilesets name</th>
+                    <th scope="col">Min. compliance</th>
                     <th scope="col">Time</th>
-                    <th scope="col">Preview</th>
+                    <th scope="col">Action</th>
                 </tr>
                 </thead>
                 <tbody id="taskListContent">
@@ -47,9 +48,14 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="addLocalTaskMinCompliance">Min compliance</label>
-                    <input class="form-control" id="addLocalTaskMinCompliance" max="99" min="1" type="number"
-                           value="15">
+                    <label class="deprecated" for="addLocalTaskMinCompliance">Minimum compliance</label>
+                    <input class="form-control" id="addLocalTaskMinCompliance" max="99" min="-1" type="number"
+                           value="1">
+                    <small class="form-text text-muted">You don't want to use it :)</small>
+                </div>
+                <div class="custom-control custom-switch">
+                    <input class="custom-control-input" id="addLocalTaskHasDiff" name="hasDiff" type="checkbox">
+                    <label class="custom-control-label" for="addLocalTaskHasDiff">Create diff</label>
                 </div>
                 <button class="btn btn-primary" id="addLocalTaskSubmit" type="button">Submit</button>
             </form>
@@ -71,9 +77,14 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="addRemoteTaskMinCompliance">Min compliance</label>
-                    <input class="form-control" id="addRemoteTaskMinCompliance" max="99" min="1" name="minCompliance"
-                           type="number" value="15">
+                    <label class="deprecated" for="addRemoteTaskMinCompliance">Minimum compliance</label>
+                    <input class="form-control" id="addRemoteTaskMinCompliance" max="99" min="-1" name="minCompliance"
+                           type="number" value="1">
+                    <small class="form-text text-muted">You don't want to use it :)</small>
+                </div>
+                <div class="custom-control custom-switch">
+                    <input class="custom-control-input" id="addRemoteTaskHasDiff" name="hasDiff" type="checkbox">
+                    <label class="custom-control-label" for="addRemoteTaskHasDiff">Create diff</label>
                 </div>
                 <button class="btn btn-primary" id="addRemoteTaskSubmit" type="button">Submit</button>
             </form>

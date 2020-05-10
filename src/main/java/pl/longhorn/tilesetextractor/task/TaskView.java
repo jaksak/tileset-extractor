@@ -12,6 +12,8 @@ public class TaskView implements Serializable {
     private LocalDateTime time;
     private String tilesetsName;
     private String inputName;
+    private int minCompliance;
+    private boolean hasDiff;
 
     public TaskView(ExtractorTask task) {
         this.id = task.getId();
@@ -19,5 +21,7 @@ public class TaskView implements Serializable {
         this.time = task.getTime();
         this.tilesetsName = task.getTilesetsName();
         this.inputName = task.getInputName();
+        this.minCompliance = task.getMinCompliance();
+        this.hasDiff = task.isHasDiff();
     }
 }

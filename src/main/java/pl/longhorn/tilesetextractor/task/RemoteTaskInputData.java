@@ -7,4 +7,5 @@ public class RemoteTaskInputData {
     private String mapFileName;
     private String tilesetsName;
     private int minCompliance;
+    private boolean hasDiff;
 }
