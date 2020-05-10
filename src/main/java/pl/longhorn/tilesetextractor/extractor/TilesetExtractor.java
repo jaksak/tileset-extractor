@@ -41,8 +41,10 @@ public class TilesetExtractor {
         while (true) {
             Optional<TilesetWithCompliance> bestMatchedElement = getBestMatched(matchedElements);
             if (bestMatchedElement.isPresent()) {
-                elements.add(new MapElement(bestMatchedElement.get().getTileset()));
-                ignoredPixels.addAll(bestMatchedElement.get().getComparisonResult().getUsedPixels());
+                TilesetWithCompliance tilesetsToAdd = bestMatchedElement.get();
+                elements.add(new MapElement(tilesetsToAdd.getTileset()));
+                matchedElements.remove(tilesetsToAdd);
+                ignoredPixels.addAll(tilesetsToAdd.getComparisonResult().getUsedPixels());
             } else {
                 break;
             }
