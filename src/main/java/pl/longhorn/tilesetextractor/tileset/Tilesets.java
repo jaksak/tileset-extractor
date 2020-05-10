@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 public class Tilesets {
 
     private List<Tileset> tilesets = new LinkedList<>();
-    private static int nextId = 0;
+    private int nextId = 0;
 
     public Tilesets(String tilesetDirectory) throws URISyntaxException, IOException {
         Files.walk(ImageHelper.getResourcePath("tilesets/" + tilesetDirectory))
@@ -27,8 +27,8 @@ public class Tilesets {
 
     private void addTilesets(Path path) {
         try {
-            val tilsetsImage = ImageIO.read(path.toFile());
-            ImageHelper.split(tilsetsImage)
+            val tilesetsImage = ImageIO.read(path.toFile());
+            ImageHelper.split(tilesetsImage)
                     .forEach(this::tryAddTileset);
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,8 +38,10 @@ public class Tilesets {
     private void tryAddTileset(BufferedImage image) {
         val imageRgb = ImageHelper.getRgb(image);
         int nonAlphaPixels = getNonAlpaPixels(imageRgb);
+        nextId++;
         if (nonAlphaPixels > 0 && isUnique(imageRgb)) {
-            tilesets.add(new Tileset(nextId++, image, nonAlphaPixels, getGroundProbability(imageRgb, nonAlphaPixels), imageRgb));
+            val newTileset = new Tileset(nextId, image, nonAlphaPixels, getGroundProbability(imageRgb, nonAlphaPixels), imageRgb);
+            tilesets.add(newTileset);
         }
     }
 

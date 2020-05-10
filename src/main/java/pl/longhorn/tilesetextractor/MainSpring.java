@@ -17,7 +17,7 @@ public class MainSpring {
 	public MultipartResolver multipartResolver() {
 		CommonsMultipartResolver multipartResolver
 				= new CommonsMultipartResolver();
-		multipartResolver.setMaxUploadSize(5242880);
+		multipartResolver.setMaxUploadSize(1048576);
 		return multipartResolver;
 	}
 }

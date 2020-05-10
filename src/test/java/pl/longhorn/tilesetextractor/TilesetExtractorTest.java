@@ -3,6 +3,7 @@ package pl.longhorn.tilesetextractor;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
+import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
 import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
 import java.io.IOException;
@@ -21,8 +22,9 @@ public class TilesetExtractorTest {
     @Test
     public void emptyMapShouldReturnProperFile() throws IOException, URISyntaxException {
         val mapFile = ImageHelper.getResourcePath("emptyMap.png");
+        val extractorParam = new TilesetExtractorParam(tilesets, ImageHelper.getImage("emptyMap.png"), 15);
 
-        val result = tilesetExtractor.run(tilesets, ImageHelper.getImage("emptyMap.png"));
+        val result = tilesetExtractor.run(extractorParam);
 
         assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 41);
     }
@@ -30,12 +32,22 @@ public class TilesetExtractorTest {
     @Test
     public void mapWithSingleTypeShouldReturnProperFile() throws IOException, URISyntaxException {
         val mapFile = ImageHelper.getResourcePath("singleElementsMap.png");
+        val extractorParam = new TilesetExtractorParam(tilesets, ImageHelper.getImage("singleElementsMap.png"), 15);
 
-        val result = tilesetExtractor.run(tilesets, ImageHelper.getImage("singleElementsMap.png"));
+        val result = tilesetExtractor.run(extractorParam);
 
         assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 7_404);
     }
 
+    @Test
+    public void mapWithDoubleElementsPerCoordinatesShouldReturnProperFile() throws IOException, URISyntaxException {
+        val mapFile = ImageHelper.getResourcePath("doubleMap.png");
+        val extractorParam = new TilesetExtractorParam(tilesets, ImageHelper.getImage("doubleMap.png"), 15);
+
+        val result = tilesetExtractor.run(extractorParam);
+
+        assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 7_404);
+    }
 
     //    @Test
 //    public void mapWithPlantsShouldReturnProperFile() throws IOException, URISyntaxException {
@@ -45,12 +57,12 @@ public class TilesetExtractorTest {
 //
 //        assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 7_404);
 //    }
-
     @Test
-    public void mapWithDoubleElementsPerCoordinatesShouldReturnProperFile() throws IOException, URISyntaxException {
-        val mapFile = ImageHelper.getResourcePath("doubleMap.png");
+    public void mapWithPentagramsShouldReturnProperFile() throws IOException, URISyntaxException {
+        val mapFile = ImageHelper.getResourcePath("pentagram.png");
+        val extractorParam = new TilesetExtractorParam(new Tilesets("tilesets-pentagram"), ImageHelper.getImage("pentagram.png"), 15);
 
-        val result = tilesetExtractor.run(tilesets, ImageHelper.getImage("doubleMap.png"));
+        val result = tilesetExtractor.run(extractorParam);
 
         assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 7_404);
     }
