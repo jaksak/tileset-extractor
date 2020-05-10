@@ -20,7 +20,7 @@ public class Tilesets {
     private static int nextId = 0;
 
     public Tilesets(String tilesetDirectory) throws URISyntaxException, IOException {
-        Files.walk(ImageHelper.getResourcePath(tilesetDirectory))
+        Files.walk(ImageHelper.getResourcePath("tilesets/" + tilesetDirectory))
                 .filter(Files::isRegularFile)
                 .forEach(this::addTilesets);
     }

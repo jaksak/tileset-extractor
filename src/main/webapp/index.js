@@ -8,21 +8,18 @@ document.getElementById('addLocalTaskSubmit').addEventListener('click', function
         method: 'POST',
         body: formData
     })
-        .then((response) => response.json())
-        .then((r) => {
-            if (!r.ok) {
-                alert(r.message);
+        .then(result => {
+            if (!result.ok) {
+                result.json().then(jsonResult => alert(jsonResult.message));
             }
         })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+        .catch(result => alert(result));
 });
 
 document.getElementById("addRemoteTaskSubmit").addEventListener("click", function () {
     const data = {};
     serializeArray(document.getElementById('addRemoteTaskForm')).forEach(element => data[element.name] = element.value);
-    const response = fetch('./task/remote', {
+    fetch('./task/remote', {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -35,29 +32,32 @@ document.getElementById("addRemoteTaskSubmit").addEventListener("click", functio
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(data) // body data type must match 'Content-Type' header
     })
-        .then(r => {
-            if (!r.ok) {
-                alert(r.message);
+        .then(result => {
+            if (!result.ok) {
+                result.json().then(jsonResult => alert(jsonResult.message));
             }
         })
-        .catch(currentResponse => alert(response.statusText))
+        .catch(result => alert(result));
 });
 
 let savedTaskData = [];
 
-function showResultTooltip(event, id) {
-    const imgTooltip = document.getElementById('resultImgTooltip');
-    imgTooltip.src = './task/result?id=' + id;
+function showImageTooltip(event, source) {
+    const imgTooltip = document.getElementById('imageInImageTooltip');
+    imgTooltip.src = source;
     imgTooltip.style.maxWidth = (window.innerWidth - event.pageX) * 0.9 + 'px';
     imgTooltip.style.maxHeight = (window.innerHeight - event.pageY) * 0.9 + 'px';
-    const tooltip = document.getElementById('resultTooltip');
-    tooltip.style.visibility = 'visible';
+    const tooltip = document.getElementById('imageTooltip');
     tooltip.style.left = event.pageX + 'px';
     tooltip.style.top = event.pageY + 'px';
 }
 
-function hideResultTooltip() {
-    document.getElementById('resultTooltip').style.visibility = 'hidden';
+document.getElementById('imageInImageTooltip').addEventListener('load', function () {
+    document.getElementById('imageTooltip').style.visibility = 'visible';
+});
+
+function hideImageTooltip() {
+    document.getElementById('imageTooltip').style.visibility = 'hidden';
 }
 
 function prepareTask(order, content) {
@@ -72,14 +72,28 @@ function prepareTask(order, content) {
     td.innerHTML = content.status;
     container.appendChild(td);
     td = document.createElement("td");
+    td.innerHTML = content.inputName;
+    container.appendChild(td);
+    td = document.createElement("td");
+    td.innerHTML = content.tilesetsName;
+    container.appendChild(td);
+    td = document.createElement("td");
     td.innerHTML = content.time.substring(0, 19).replace('T', ' ');
     container.appendChild(td);
     td = document.createElement("td");
+    const inputPreview = document.createElement('span');
+    inputPreview.innerHTML = '[ I ]';
+    inputPreview.addEventListener('mouseover', event => showImageTooltip(event, './task/input?id=' + content.id));
+    inputPreview.addEventListener('mouseout', hideImageTooltip);
+    inputPreview.addEventListener('click', () => window.open('./task/input?id=' + content.id));
+    td.appendChild(inputPreview);
     if (content.status === 'FINISHED') {
-        td.innerHTML = '[ ✔ ]';
-        td.addEventListener('mouseover', event => showResultTooltip(event, content.id));
-        td.addEventListener('mouseout', hideResultTooltip);
-        td.addEventListener('click', () => window.open('./task/result?id=' + content.id));
+        const resultPreview = document.createElement('span');
+        resultPreview.innerHTML = '[ R ]';
+        resultPreview.addEventListener('mouseover', event => showImageTooltip(event, './task/result?id=' + content.id));
+        resultPreview.addEventListener('mouseout', hideImageTooltip);
+        resultPreview.addEventListener('click', () => window.open('./task/result?id=' + content.id));
+        td.appendChild(resultPreview);
     }
     container.appendChild(td);
     return container;
@@ -116,3 +130,14 @@ function refreshTaskData() {
 
 window.setInterval(refreshTaskData, 10_000);
 refreshTaskData();
+
+fetch('map/remote')
+    .then(result => {
+        if (result.ok) {
+            result.json()
+                .then(json => autocomplete(document.getElementById('addRemoteTaskMap'), json))
+        } else {
+            result.json()
+                .then(json => alert(json.message))
+        }
+    });

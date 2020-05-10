@@ -7,6 +7,7 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" rel="stylesheet">
     <link href="index.css" rel="stylesheet"/>
     <script src="serializeArray.js"></script>
+    <script src="autocomplete.js"></script>
     <link href="favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
@@ -19,6 +20,8 @@
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Input name</th>
+                    <th scope="col">Tilesets name</th>
                     <th scope="col">Time</th>
                     <th scope="col">Preview</th>
                 </tr>
@@ -33,13 +36,14 @@
                 <div class="form-group">
                     <label for="addLocalTaskFile">Map</label>
                     <input class="form-control-file" id="addLocalTaskFile" name="file" type="file">
-                    <small class="form-text text-muted" id="addLocalTaskFileHelp">Max size: 5MB.</small>
+                    <small class="form-text text-muted" id="addLocalTaskFileHelp">Max size: 5MB</small>
                 </div>
                 <div class="form-group">
                     <label for="addLocalTaskTilesetsName">Choose tilesets</label>
                     <select class="form-control" id="addLocalTaskTilesetsName" name="tilesetsName">
-                        <option value="user-tileset">User tilesets</option>
-                        <option value="tileset">Original tilesets</option>
+                        <option value="user">User tilesets</option>
+                        <option value="original">Original tilesets</option>
+                        <option value="choice">Own choice</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -56,12 +60,14 @@
                 <div class="form-group">
                     <label for="addRemoteTaskMap">Map</label>
                     <input class="form-control" id="addRemoteTaskMap" name="mapFileName" type="text">
+                    <small class="form-text text-muted" id="addRemoteTaskMapHelp">Name completition available</small>
                 </div>
                 <div class="form-group">
                     <label for="addRemoteTaskTilesetsName">Choose tilesets</label>
                     <select class="form-control" id="addRemoteTaskTilesetsName" name="tilesetsName">
                         <option value="user-tileset">User tilesets</option>
                         <option value="tileset">Original tilesets</option>
+                        <option value="choice">Own choice</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -74,8 +80,8 @@
         </div>
     </div>
 </div>
-<div class="tooltip" id="resultTooltip">
-    <img alt="result" id="resultImgTooltip" src=""/>
+<div class="tooltip" id="imageTooltip">
+    <img alt="result" id="imageInImageTooltip" src=""/>
 </div>
 <script crossorigin="anonymous" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
         src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>

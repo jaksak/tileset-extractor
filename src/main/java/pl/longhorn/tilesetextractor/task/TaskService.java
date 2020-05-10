@@ -5,8 +5,13 @@ import org.springframework.stereotype.Service;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
+import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +22,7 @@ public class TaskService {
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private LimitedQueue<ExtractorTask> tasks = new LimitedQueue<>(10);
     private TilesetExtractor tilesetExtractor = new TilesetExtractor();
+    private Map<String, Tilesets> tilesetsByName = new HashMap<>();
 
     public void addTask(ExtractorTask task) {
         if (isNotBusy()) {
@@ -30,8 +36,11 @@ public class TaskService {
 
     private void processTask(ExtractorTask task) {
         task.setTime(LocalDateTime.now());
+        task.setStatus(ExtractorTaskStatus.PREPARE_TILESETS);
+        val tilesets = getTilesets(task.getTilesetsName());
+        task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.IN_PROGRESS);
-        val extractorParam = new TilesetExtractorParam(task.getTilesets(), task.getMapImage(), task.getMinCompliance());
+        val extractorParam = new TilesetExtractorParam(tilesets, task.getInput(), task.getMinCompliance());
         val result = tilesetExtractor.run(extractorParam);
         task.setTime(LocalDateTime.now());
         task.setResult(result);
@@ -52,5 +61,27 @@ public class TaskService {
         return tasks.stream()
                 .filter(task -> task.getId().equals(id))
                 .findAny();
+    }
+
+    private synchronized Tilesets getTilesets(String tilesetsName) {
+        Tilesets tilesets = tilesetsByName.get(tilesetsName);
+        if (tilesets == null) {
+            tilesets = createTilesets(tilesetsName);
+        }
+        return tilesets;
+    }
+
+    private Tilesets createTilesets(String tilesetsName) {
+        try {
+            return createTilesetsInternal(tilesetsName);
+        } catch (IOException | URISyntaxException e) {
+            throw new BadTilesetsNameException();
+        }
+    }
+
+    private Tilesets createTilesetsInternal(String tilesetsName) throws IOException, URISyntaxException {
+        Tilesets tilesets = new Tilesets(tilesetsName);
+        tilesetsByName.put(tilesetsName, tilesets);
+        return tilesets;
     }
 }

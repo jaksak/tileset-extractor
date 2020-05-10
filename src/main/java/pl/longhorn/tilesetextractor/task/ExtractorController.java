@@ -6,7 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.longhorn.tilesetextractor.ImageHelper;
-import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
@@ -16,32 +15,31 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 public class ExtractorController {
 
     private TaskService taskService;
-    private Map<String, Tilesets> tilesetsMap;
 
     public ExtractorController(TaskService taskService) {
         this.taskService = taskService;
-        this.tilesetsMap = new HashMap<>();
     }
 
     @PostMapping("task/remote")
     public TaskView addTask(@RequestBody RemoteTaskInputData inputData) {
-        ExtractorTask task = new ExtractorTask(getTilesets(inputData.getTilesetsName()), getMap(inputData), inputData.getMinCompliance());
+        validateTilesetsName(inputData.getTilesetsName());
+        ExtractorTask task = new ExtractorTask(inputData.getTilesetsName(), inputData.getMapFileName(), getMap(inputData), inputData.getMinCompliance());
         taskService.addTask(task);
         return new TaskView(task);
     }
 
     @PostMapping("task/local")
     public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance) throws IOException {
-        ExtractorTask task = new ExtractorTask(getTilesets(tilesetsName), getImage(file), minCompliance);
+        validateTilesetsName(tilesetsName);
+        ExtractorTask task = new ExtractorTask(tilesetsName, file.getOriginalFilename(), getImage(file), minCompliance);
         taskService.addTask(task);
         return new TaskView(task);
     }
@@ -53,48 +51,56 @@ public class ExtractorController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("map/remote")
+    public List<String> getRemoteMaps() throws URISyntaxException, IOException {
+        return Files.walk(ImageHelper.getResourcePath("maps"))
+                .skip(1)
+                .map(path -> path.getFileName().toString())
+                .collect(Collectors.toList());
+    }
+
+    @ResponseBody
+    @GetMapping("task/input")
+    public void getInput(@RequestParam String id, HttpServletResponse response) throws IOException {
+        val task = taskService.getTask(id);
+        if (task.isPresent()) {
+            val image = task.get().getInput();
+            attachImage(response, image);
+        }
+    }
+
     @ResponseBody
     @GetMapping("task/result")
     public void getResult(@RequestParam String id, HttpServletResponse response) throws IOException {
         val task = taskService.getTask(id);
         if (task.isPresent()) {
-            val resultImage = task.get().getResult();
-            response.setContentType(MediaType.IMAGE_PNG_VALUE);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(resultImage, "png", os);
-            InputStream is = new ByteArrayInputStream(os.toByteArray());
-            IOUtils.copy(is, response.getOutputStream());
+            val image = task.get().getResult();
+            attachImage(response, image);
+        }
+    }
+
+    private void attachImage(HttpServletResponse response, BufferedImage resultImage) throws IOException {
+        response.setContentType(MediaType.IMAGE_PNG_VALUE);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIO.write(resultImage, "png", os);
+        InputStream is = new ByteArrayInputStream(os.toByteArray());
+        IOUtils.copy(is, response.getOutputStream());
+    }
+
+    private void validateTilesetsName(String tilesetsName) {
+        try {
+            ImageHelper.getResourcePath("tilesets/" + tilesetsName);
+        } catch (URISyntaxException | NullPointerException e) {
+            throw new BadTilesetsNameException();
         }
     }
 
     private BufferedImage getMap(RemoteTaskInputData inputData) {
         try {
-            return ImageHelper.getImage(inputData.getMapFileName());
+            return ImageHelper.getImage("maps/" + inputData.getMapFileName());
         } catch (URISyntaxException | IOException e) {
             throw new MapNotExistException();
         }
-    }
-
-    private synchronized Tilesets getTilesets(String tilesetsName) {
-        Tilesets tilesets = tilesetsMap.get(tilesetsName);
-        if (tilesets == null) {
-            tilesets = createTilesets(tilesetsName);
-        }
-        return tilesets;
-    }
-
-    private Tilesets createTilesets(String tilesetsName) {
-        try {
-            return createTilesetsInternal(tilesetsName);
-        } catch (IOException | URISyntaxException e) {
-            throw new BadTilesetsNameException();
-        }
-    }
-
-    private Tilesets createTilesetsInternal(String tilesetsName) throws IOException, URISyntaxException {
-        Tilesets tilesets = new Tilesets(tilesetsName);
-        tilesetsMap.put(tilesetsName, tilesets);
-        return tilesets;
     }
 
     private BufferedImage getImage(MultipartFile file) throws IOException {

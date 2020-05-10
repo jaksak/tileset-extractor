@@ -4,3 +4,7 @@
     opacity: 1;
     background-color: #000d1a;
 }
+
+body {
+    width: 100%;
+}
