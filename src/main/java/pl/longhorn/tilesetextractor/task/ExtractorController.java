@@ -113,7 +113,7 @@ public class ExtractorController {
     }
 
     private void validateMinCompliance(int minCompliance) {
-        if (minCompliance < 2 || minCompliance > 99) {
+        if (minCompliance < 1 || minCompliance > 99) {
             throw new IllegalMinComplianceException();
         }
     }

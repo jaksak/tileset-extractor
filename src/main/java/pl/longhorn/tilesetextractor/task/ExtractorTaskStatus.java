@@ -4,5 +4,6 @@ public enum ExtractorTaskStatus {
     PENDING,
     PREPARE_TILESETS,
     IN_PROGRESS,
+    PREPARE_DIFF,
     FINISHED;
 }

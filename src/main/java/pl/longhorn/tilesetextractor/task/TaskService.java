@@ -45,6 +45,7 @@ public class TaskService {
 
     private void processDiff(ExtractorTask task, BufferedImage result) {
         if (task.isHasDiff()) {
+            task.setStatus(ExtractorTaskStatus.PREPARE_DIFF);
             val diffImage = DiffPainter.paint(task.getInput(), result);
             task.setDiff(diffImage);
         }
