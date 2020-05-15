@@ -1,11 +1,18 @@
 package pl.longhorn.tilesetextractor.task;
 
+import kong.unirest.UnirestException;
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pl.longhorn.imageholderclient.ImageHolderAccessor;
+import pl.longhorn.imageholderclient.ImageHolderAccessorImpl;
+import pl.longhorn.imageholdercommon.ImageDetailsView;
+import pl.longhorn.imageholdercommon.ImageListView;
 import pl.longhorn.tilesetextractor.ImageHelper;
+import pl.longhorn.tilesetextractor.ProjectConfig;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
@@ -15,18 +22,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class ExtractorController {
 
-    private TaskService taskService;
-
-    public ExtractorController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    private final TaskService taskService;
+    private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
 
     @PostMapping("task/remote")
     public TaskView addTask(@RequestBody RemoteTaskInputData inputData) {
@@ -52,10 +56,9 @@ public class ExtractorController {
     }
 
     @GetMapping("map/remote")
-    public List<String> getRemoteMaps() throws URISyntaxException, IOException {
-        return Files.walk(ImageHelper.getResourcePath("maps"))
-                .skip(1)
-                .map(path -> path.getFileName().toString())
+    public List<String> getRemoteMaps() {
+        return imageHolderAccessor.getImagesByCategory("maps").stream()
+                .map(ImageListView::getName)
                 .collect(Collectors.toList());
     }
 
@@ -136,8 +139,10 @@ public class ExtractorController {
 
     private BufferedImage getMap(RemoteTaskInputData inputData) {
         try {
-            return ImageHelper.getImage("maps/" + inputData.getMapFileName());
-        } catch (URISyntaxException | IOException e) {
+            ImageDetailsView image = imageHolderAccessor.getImageByName(inputData.getMapFileName());
+            ByteArrayInputStream bis = new ByteArrayInputStream(image.getContent());
+            return ImageIO.read(bis);
+        } catch (IOException | UnirestException e) {
             throw new MapNotExistException();
         }
     }
