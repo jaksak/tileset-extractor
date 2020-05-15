@@ -13,6 +13,7 @@ body {
     text-decoration: line-through;
 }
 
-#mockTaskList {
-
+.taskRow {
+    opacity: 1;
+    transition: 1s opacity;
 }

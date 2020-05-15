@@ -19,10 +19,10 @@ class TaskRow {
         this.updateSimpleValue(columns[2], data.inputName);
         this.updateSimpleValue(columns[3], data.tilesetsName);
         this.updateSimpleValue(columns[4], data.minCompliance);
-        this.updateSimpleValue(columns[5], data.time.slice(0, 10).replace('T', ' '));
+        this.updateSimpleValue(columns[5], data.time.slice(0, 19).replace('T', ' '));
         this.updateActionColumn(columns[6], data);
         this.data = data;
-        this.trElement.style.display = 'table-row';
+        this.trElement.style.opacity = "1";
     }
 
     updateSimpleValue(column, newValue) {

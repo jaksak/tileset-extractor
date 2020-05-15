@@ -90,10 +90,12 @@ const taskRows = [];
 
 function prepareHtmlTaskRow() {
     const row = document.createElement('tr');
+    row.className = 'taskRow'
     row.appendChild(document.createElement('th'));
     for (let i = 0; i < 6; i++) {
         row.appendChild(document.createElement('td'));
     }
+    row.style.opacity = "0";
     document.getElementById('taskListContent').appendChild(row);
     return row;
 }
@@ -102,7 +104,9 @@ function updateTask(order, content) {
     let taskRow = taskRows[order];
     if (taskRow == null) {
         const htmlRow = prepareHtmlTaskRow();
-        taskRows[order] = new TaskRow(htmlRow, content, order);
+        setTimeout(function () {
+            taskRows[order] = new TaskRow(htmlRow, content, order);
+        }, 1);
     } else {
         taskRow.updateData(content)
     }
