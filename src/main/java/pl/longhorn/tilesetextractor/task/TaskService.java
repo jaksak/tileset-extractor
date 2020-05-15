@@ -2,6 +2,7 @@ package pl.longhorn.tilesetextractor.task;
 
 import lombok.val;
 import org.springframework.stereotype.Service;
+import org.tinylog.Logger;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
@@ -22,7 +23,7 @@ import java.util.concurrent.Executors;
 public class TaskService {
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private LimitedQueue<ExtractorTask> tasks = new LimitedQueue<>(10);
+    private LimitedQueue<ExtractorTask> tasks = new LimitedQueue<>(15);
     private TilesetExtractor tilesetExtractor = new TilesetExtractor();
     private Map<String, Tilesets> tilesetsByName = new HashMap<>();
 
@@ -37,16 +38,33 @@ public class TaskService {
     }
 
     private void processTask(ExtractorTask task) {
+        try {
+            processTaskInternal(task);
+        } catch (Exception e) {
+            task.setStatus(ExtractorTaskStatus.ERROR);
+            task.setTime(LocalDateTime.now());
+            Logger.error(e);
+        }
+    }
+
+    private void processTaskInternal(ExtractorTask task) {
         Tilesets tilesets = processPrepareTilesets(task);
+        processDownloadMap(task);
         val result = processExtractor(task, tilesets);
         processDiff(task, result);
         processPostTask(task);
     }
 
+    private void processDownloadMap(ExtractorTask task) {
+        task.setStatus(ExtractorTaskStatus.DOWNLOAD_MAP);
+        task.setTime(LocalDateTime.now());
+        task.getInput().get();
+    }
+
     private void processDiff(ExtractorTask task, BufferedImage result) {
         if (task.isHasDiff()) {
             task.setStatus(ExtractorTaskStatus.PREPARE_DIFF);
-            val diffImage = DiffPainter.paint(task.getInput(), result);
+            val diffImage = DiffPainter.paint(task.getInput().get(), result);
             task.setDiff(diffImage);
         }
     }
@@ -59,7 +77,7 @@ public class TaskService {
     private BufferedImage processExtractor(ExtractorTask task, Tilesets tilesets) {
         task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.IN_PROGRESS);
-        val extractorParam = new TilesetExtractorParam(tilesets, task.getInput(), task.getMinCompliance());
+        val extractorParam = new TilesetExtractorParam(tilesets, task.getInput().get(), task.getMinCompliance());
         val result = tilesetExtractor.run(extractorParam);
         task.setResult(result);
         return result;

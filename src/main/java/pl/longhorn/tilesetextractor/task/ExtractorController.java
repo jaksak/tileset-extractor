@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pl.longhorn.imageholderclient.ImageHolderAccessor;
 import pl.longhorn.imageholderclient.ImageHolderAccessorImpl;
+import pl.longhorn.imageholderclient.LazyInitializer;
 import pl.longhorn.imageholdercommon.ImageDetailsView;
 import pl.longhorn.imageholdercommon.ImageListView;
 import pl.longhorn.tilesetextractor.ImageHelper;
@@ -32,16 +33,18 @@ public class ExtractorController {
     private final TaskService taskService;
     private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
 
+    private final LazyInitializer<List<String>> remoteMapsNames = new LazyInitializer<>(this::getMapNamesRemotely);
+
     @PostMapping("task/remote")
     public TaskView addTask(@RequestBody RemoteTaskInputData inputData) {
-        ExtractorTask task = new ExtractorTask(inputData.getTilesetsName(), inputData.getMapFileName(), getMap(inputData), inputData.getMinCompliance(), inputData.isHasDiff());
+        ExtractorTask task = new ExtractorTask(inputData.getTilesetsName(), inputData.getMapFileName(), getMapLazyInitializer(inputData), inputData.getMinCompliance(), inputData.isHasDiff());
         validateTask(task);
         taskService.addTask(task);
         return new TaskView(task);
     }
 
     @PostMapping("task/local")
-    public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance, @RequestParam boolean hasDiff) throws IOException {
+    public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance, @RequestParam boolean hasDiff) {
         ExtractorTask task = new ExtractorTask(tilesetsName, file.getOriginalFilename(), getImage(file), minCompliance, hasDiff);
         validateTask(task);
         taskService.addTask(task);
@@ -57,9 +60,7 @@ public class ExtractorController {
 
     @GetMapping("map/remote")
     public List<String> getRemoteMaps() {
-        return imageHolderAccessor.getImagesByCategory("maps").stream()
-                .map(ImageListView::getName)
-                .collect(Collectors.toList());
+        return remoteMapsNames.get();
     }
 
     @ResponseBody
@@ -68,7 +69,7 @@ public class ExtractorController {
         val task = taskService.getTask(id);
         if (task.isPresent()) {
             val image = task.get().getInput();
-            attachImage(response, image);
+            attachImage(response, image.get());
         }
     }
 
@@ -95,6 +96,13 @@ public class ExtractorController {
     @DeleteMapping("task")
     public void deleteTask(@RequestBody String id) {
         taskService.remove(id);
+    }
+
+    private List<String> getMapNamesRemotely() {
+        return imageHolderAccessor.getImagesByCategory("maps").stream()
+                .map(ImageListView::getName)
+                .filter(name -> !name.contains("dom") && !name.contains("jask"))
+                .collect(Collectors.toList());
     }
 
     private void validateTask(ExtractorTask task) {
@@ -137,7 +145,18 @@ public class ExtractorController {
         }
     }
 
-    private BufferedImage getMap(RemoteTaskInputData inputData) {
+    private LazyInitializer<BufferedImage> getMapLazyInitializer(RemoteTaskInputData inputData) {
+        verifyRemoteMapName(inputData.getMapFileName());
+        return new LazyInitializer<>(() -> getRemoteMap(inputData));
+    }
+
+    private void verifyRemoteMapName(String mapFileName) {
+        if (!remoteMapsNames.get().contains(mapFileName)) {
+            throw new MapNotExistException();
+        }
+    }
+
+    private BufferedImage getRemoteMap(RemoteTaskInputData inputData) {
         try {
             ImageDetailsView image = imageHolderAccessor.getImageByName(inputData.getMapFileName());
             ByteArrayInputStream bis = new ByteArrayInputStream(image.getContent());
@@ -147,8 +166,14 @@ public class ExtractorController {
         }
     }
 
-    private BufferedImage getImage(MultipartFile file) throws IOException {
-        ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
-        return ImageIO.read(bis);
+    private LazyInitializer<BufferedImage> getImage(MultipartFile file) {
+        return new LazyInitializer<>(() -> {
+            try {
+                ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
+                return ImageIO.read(bis);
+            } catch (IOException e) {
+                throw new MapNotExistException();
+            }
+        });
     }
 }

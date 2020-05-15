@@ -46,8 +46,6 @@ document.getElementById("addRemoteTaskSubmit").addEventListener("click", functio
         .catch(result => alert(result));
 });
 
-let savedTaskData = [];
-
 function showImageTooltip(event, source) {
     const imgTooltip = document.getElementById('imageInImageTooltip');
     imgTooltip.src = source;
@@ -81,7 +79,6 @@ function deleteTask(id) {
         .then(result => {
             if (result.ok) {
                 refreshTaskData();
-                savedTaskData.filter(task => task.id !== id)
             } else {
                 result.json()
                     .then(json => alert(json.message));
@@ -89,77 +86,39 @@ function deleteTask(id) {
         });
 }
 
-function prepareTask(order, content) {
-    savedTaskData[order] = content;
-    const container = document.createElement("tr");
-    container.id = order;
-    const th = document.createElement("th");
-    th.scope = "row";
-    th.innerHTML = order + 1;
-    container.appendChild(th);
-    let td = document.createElement("td");
-    td.innerHTML = content.status;
-    container.appendChild(td);
-    td = document.createElement("td");
-    td.innerHTML = content.inputName;
-    container.appendChild(td);
-    td = document.createElement("td");
-    td.innerHTML = content.tilesetsName;
-    container.appendChild(td);
-    td = document.createElement("td");
-    td.innerHTML = content.minCompliance;
-    container.appendChild(td);
-    td = document.createElement("td");
-    td.innerHTML = content.time.substring(0, 19).replace('T', ' ');
-    container.appendChild(td);
-    td = document.createElement("td");
-    const inputPreview = document.createElement('span');
-    inputPreview.innerHTML = '[I]';
-    inputPreview.addEventListener('mouseover', event => showImageTooltip(event, './task/input?id=' + content.id));
-    inputPreview.addEventListener('mouseout', hideImageTooltip);
-    inputPreview.addEventListener('click', () => window.open('./task/input?id=' + content.id));
-    td.appendChild(inputPreview);
-    if (content.status === 'FINISHED') {
-        const resultPreview = document.createElement('span');
-        resultPreview.innerHTML = '[R]';
-        resultPreview.addEventListener('mouseover', event => showImageTooltip(event, './task/result?id=' + content.id));
-        resultPreview.addEventListener('mouseout', hideImageTooltip);
-        resultPreview.addEventListener('click', () => window.open('./task/result?id=' + content.id));
-        td.appendChild(resultPreview);
-        const diffPreview = document.createElement('span');
-        if (content.hasDiff) {
-            diffPreview.innerHTML = '[D]';
-            diffPreview.addEventListener('mouseover', event => showImageTooltip(event, './task/diff?id=' + content.id));
-            diffPreview.addEventListener('mouseout', hideImageTooltip);
-            diffPreview.addEventListener('click', () => window.open('./task/diff?id=' + content.id));
-            td.appendChild(diffPreview);
-        }
+const taskRows = [];
+
+function prepareHtmlTaskRow() {
+    const row = document.createElement('tr');
+    row.appendChild(document.createElement('th'));
+    for (let i = 0; i < 6; i++) {
+        row.appendChild(document.createElement('td'));
     }
-    container.appendChild(td);
-    return container;
+    document.getElementById('taskListContent').appendChild(row);
+    return row;
 }
 
 function updateTask(order, content) {
-    const oldTask = savedTaskData[order];
-    if (oldTask == null) {
-        const domTask = prepareTask(order, content);
-        document.getElementById("taskListContent").appendChild(domTask);
-    } else if (oldTask.id !== content.id || oldTask.status !== content.status) {
-        const element = document.getElementById(order);
-        element.parentNode.removeChild(element);
-        const domTask = prepareTask(order, content);
-        const appender = document.getElementById("taskListContent").childNodes[order + 1];
-        if (appender != null) {
-            document.getElementById("taskListContent").insertBefore(domTask, document.getElementById("taskListContent").childNodes[order + 1]);
-        } else {
-            document.getElementById("taskListContent").appendChild(domTask);
-        }
+    let taskRow = taskRows[order];
+    if (taskRow == null) {
+        const htmlRow = prepareHtmlTaskRow();
+        taskRows[order] = new TaskRow(htmlRow, content, order);
+    } else {
+        taskRow.adjustData(content)
+    }
+}
+
+function removeTasksAfterOrEquals(order) {
+    for (let i = order; order < taskRows.length; i++) {
+        taskRows[i].removeHtml();
+        taskRows.splice(i, 1);
     }
 }
 
 function updateTasks(freshTask) {
     let order = 0;
-    freshTask.forEach(content => updateTask(order++, content))
+    freshTask.forEach(content => updateTask(order++, content));
+    removeTasksAfterOrEquals(order);
 }
 
 function refreshTaskData() {

@@ -33,6 +33,8 @@ dependencies {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
 	compile 'pl.longhorn:image-holder-client:0.0.1-SNAPSHOT'
+	compile group: 'org.tinylog', name: 'tinylog-api', version: '2.1.2'
+	compile group: 'org.tinylog', name: 'tinylog-impl', version: '2.1.2'
 }
 
 test {

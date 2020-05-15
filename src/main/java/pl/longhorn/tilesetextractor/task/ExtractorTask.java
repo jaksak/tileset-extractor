@@ -2,6 +2,7 @@ package pl.longhorn.tilesetextractor.task;
 
 import lombok.Getter;
 import lombok.Setter;
+import pl.longhorn.imageholderclient.LazyInitializer;
 
 import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
@@ -14,14 +15,14 @@ public class ExtractorTask {
     private ExtractorTaskStatus status;
     private String tilesetsName;
     private String inputName;
-    private BufferedImage input;
+    private LazyInitializer<BufferedImage> input;
     private BufferedImage result;
     private BufferedImage diff;
     private LocalDateTime time;
     private int minCompliance;
     private boolean hasDiff;
 
-    public ExtractorTask(String tilesetsName, String inputName, BufferedImage input, int minCompliance, boolean hasDiff) {
+    public ExtractorTask(String tilesetsName, String inputName, LazyInitializer<BufferedImage> input, int minCompliance, boolean hasDiff) {
         this.id = UUID.randomUUID().toString();
         this.status = ExtractorTaskStatus.PENDING;
         this.inputName = inputName;
