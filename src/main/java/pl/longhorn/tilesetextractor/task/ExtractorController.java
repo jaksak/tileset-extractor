@@ -45,7 +45,7 @@ public class ExtractorController {
 
     @PostMapping("task/local")
     public TaskView addTask(@RequestParam("file") MultipartFile file, @RequestParam String tilesetsName, @RequestParam int minCompliance, @RequestParam boolean hasDiff) {
-        ExtractorTask task = new ExtractorTask(tilesetsName, file.getOriginalFilename(), getImage(file), minCompliance, hasDiff);
+        ExtractorTask task = new ExtractorTask(tilesetsName, file.getOriginalFilename(), getLazyInitializedImage(file), minCompliance, hasDiff);
         validateTask(task);
         taskService.addTask(task);
         return new TaskView(task);
@@ -166,14 +166,18 @@ public class ExtractorController {
         }
     }
 
-    private LazyInitializer<BufferedImage> getImage(MultipartFile file) {
-        return new LazyInitializer<>(() -> {
-            try {
-                ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
-                return ImageIO.read(bis);
-            } catch (IOException e) {
-                throw new MapNotExistException();
-            }
-        });
+    private LazyInitializer<BufferedImage> getLazyInitializedImage(MultipartFile file) {
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
+            return new LazyInitializer<>(() -> {
+                try {
+                    return ImageIO.read(bis);
+                } catch (IOException e) {
+                    throw new MapNotExistException();
+                }
+            });
+        } catch (IOException e) {
+            throw new FileUploadFailedException();
+        }
     }
 }
