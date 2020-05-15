@@ -104,7 +104,7 @@ function updateTask(order, content) {
         const htmlRow = prepareHtmlTaskRow();
         taskRows[order] = new TaskRow(htmlRow, content, order);
     } else {
-        taskRow.adjustData(content)
+        taskRow.updateData(content)
     }
 }
 

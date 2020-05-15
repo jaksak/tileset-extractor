@@ -3,10 +3,16 @@ class TaskRow {
         this.trElement = trElement;
         this.rowId = rowId;
         this.data = {};
-        this.adjustData(data);
+        this.updateData(data);
     }
 
-    adjustData(data) {
+    updateData(data) {
+        if (this.data.id !== data.id || this.data.status !== data.status) {
+            this.updateDataInternal(data);
+        }
+    }
+
+    updateDataInternal(data) {
         const columns = this.trElement.childNodes;
         this.updateSimpleValue(columns[0], this.rowId + 1);
         this.updateSimpleValue(columns[1], data.status);
@@ -15,6 +21,7 @@ class TaskRow {
         this.updateSimpleValue(columns[4], data.minCompliance);
         this.updateSimpleValue(columns[5], data.time.slice(0, 10).replace('T', ' '));
         this.updateActionColumn(columns[6], data);
+        this.data = data;
         this.trElement.style.display = 'table-row';
     }
 
