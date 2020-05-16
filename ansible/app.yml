@@ -1,0 +1,7 @@
+- hosts: tomcat
+  tasks:
+    - name: deploy app
+      include_role:
+        name: deploy-app
+      vars:
+        sb_app_name: tileset-extractor

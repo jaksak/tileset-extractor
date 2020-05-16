@@ -1,0 +1,48 @@
+---
+- name: install java
+  package:
+    name:
+      - default-jdk
+      #      - maven
+      - unzip
+      - ufw
+    state: present
+  become: yes
+#- name: Download gradle
+#  get_url:
+#    url: https://services.gradle.org/distributions/gradle-6.4.1-bin.zip
+#    dest: /tmp/gradle.zip
+#    mode: '0777'
+#  become: yes
+#- name: create directory
+#  file:
+#    path: /opt/gradle/
+#    state: directory
+#    mode: '0755'
+#  become: yes
+#- name: unarchieve gradle
+#  unarchive:
+#    src: /tmp/gradle.zip
+#    dest: /opt/gradle
+#    remote_src: yes
+#  become: yes
+- name: copy app
+  copy:
+    src: ../target/tileset-extractor-0.0.1-SNAPSHOT.jar
+    dest: app.jar
+- name: copy systemd config
+  template:
+    src: templates/app_name.service
+    dest: /etc/systemd/system/app_name.service
+  become: yes
+- name: start app
+  systemd:
+    name: app_name
+    daemon_reload: yes
+    state: restarted
+  become: yes
+- name: Change port config
+  ufw:
+    rule: allow
+    port: '2138'
+  become: yes

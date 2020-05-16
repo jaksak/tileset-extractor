@@ -53,7 +53,7 @@ public class ImageHelper {
     }
 
     public static File save(BufferedImage image) throws IOException {
-        val file = Paths.get("build", UUID.randomUUID().toString() + ".png").toFile();
+        val file = Paths.get("target", UUID.randomUUID().toString() + ".png").toFile();
         ImageIO.write(image, "PNG", file);
         return file;
     }

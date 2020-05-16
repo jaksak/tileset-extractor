@@ -92,7 +92,7 @@ const taskRows = [];
 
 function prepareHtmlTaskRow() {
     const row = document.createElement('tr');
-    row.className = 'taskRow'
+    row.className = 'taskRow';
     row.appendChild(document.createElement('th'));
     for (let i = 0; i < 6; i++) {
         row.appendChild(document.createElement('td'));

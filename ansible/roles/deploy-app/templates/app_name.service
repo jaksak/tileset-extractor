@@ -1,0 +1,12 @@
+[Unit]
+Description=App name
+After=network-online.target
+
+[Service]
+Type=simple
+User=debian
+ExecStart=java -jar /home/debian/app.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

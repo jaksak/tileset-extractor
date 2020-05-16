@@ -106,9 +106,13 @@ public class ExtractorController {
     }
 
     private void validateTask(ExtractorTask task) {
+        System.out.println("ic");
         validateTilesetsName(task.getTilesetsName());
+        System.out.println("name");
         validateMinCompliance(task.getMinCompliance());
+        System.out.println("compl");
         validateUnique(task);
+        System.out.println("all");
     }
 
     private void validateUnique(ExtractorTask task) {
