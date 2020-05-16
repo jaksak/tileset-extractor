@@ -17,3 +17,8 @@ body {
     opacity: 1;
     transition: 1s opacity;
 }
+
+.header {
+    margin-left: auto;
+    margin-right: auto;
+}

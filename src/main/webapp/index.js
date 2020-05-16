@@ -72,18 +72,20 @@ function hideImageTooltip() {
 }
 
 function deleteTask(id) {
-    fetch('./task/', {
-        method: 'DELETE',
-        body: id
-    })
-        .then(result => {
-            if (result.ok) {
-                refreshTaskData();
-            } else {
-                result.json()
-                    .then(json => alert(json.message));
-            }
-        });
+    if (confirm('Are you sure? Map rendering process about 1 hours.')) {
+        fetch('./task/', {
+            method: 'DELETE',
+            body: id
+        })
+            .then(result => {
+                if (result.ok) {
+                    refreshTaskData();
+                } else {
+                    result.json()
+                        .then(json => alert(json.message));
+                }
+            });
+    }
 }
 
 const taskRows = [];
@@ -131,7 +133,7 @@ function refreshTaskData() {
             .then(result => updateTasks(result)))
 }
 
-window.setInterval(refreshTaskData, 10_000);
+window.setInterval(refreshTaskData, 60_000);
 refreshTaskData();
 
 fetch('map/remote')
