@@ -6,15 +6,20 @@ import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
 import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TilesetExtractorTest {
 
     private final TilesetExtractor tilesetExtractor = new TilesetExtractor();
-    private final Tilesets tilesets = new Tilesets("test-tilesets");
+    private final Tilesets tilesets = getTilesets("test-tilesets");
 
     public TilesetExtractorTest() throws IOException, URISyntaxException {
     }
@@ -57,13 +62,29 @@ public class TilesetExtractorTest {
 //
 //        assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 7_404);
 //    }
+
     @Test
     public void mapWithPentagramsShouldReturnProperFile() throws IOException, URISyntaxException {
         val mapFile = ImageHelper.getResourcePath("pentagram.png");
-        val extractorParam = new TilesetExtractorParam(new Tilesets("tilesets-pentagram"), ImageHelper.getImage("pentagram.png"), 15);
+        val extractorParam = new TilesetExtractorParam(getTilesets("tilesets-pentagram"), ImageHelper.getImage("pentagram.png"), 15);
 
         val result = tilesetExtractor.run(extractorParam);
 
         assertEquals(mapFile.toFile().length(), ImageHelper.save(result).length(), 7_404);
+    }
+
+    private Tilesets getTilesets(String name) throws URISyntaxException, IOException {
+        List<BufferedImage> images = Files.walk(ImageHelper.getResourcePath("tilesets/" + name))
+                .filter(Files::isRegularFile)
+                .map(path -> {
+                    try {
+                        return ImageIO.read(path.toFile());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
+        return new Tilesets(images);
     }
 }

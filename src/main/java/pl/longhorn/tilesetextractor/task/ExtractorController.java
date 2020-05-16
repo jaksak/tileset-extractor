@@ -12,8 +12,8 @@ import pl.longhorn.imageholderclient.ImageHolderAccessorImpl;
 import pl.longhorn.imageholderclient.LazyInitializer;
 import pl.longhorn.imageholdercommon.ImageDetailsView;
 import pl.longhorn.imageholdercommon.ImageListView;
-import pl.longhorn.tilesetextractor.ImageHelper;
 import pl.longhorn.tilesetextractor.ProjectConfig;
+import pl.longhorn.tilesetextractor.tileset.TilesetSupplier;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,8 +30,9 @@ import java.util.stream.Collectors;
 public class ExtractorController {
 
     private final TaskService taskService;
-    private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
+    private final TilesetSupplier tilesetSupplier;
 
+    private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
     private final LazyInitializer<List<String>> remoteMapsNames = new LazyInitializer<>(this::getMapNamesRemotely);
 
     @PostMapping("task/remote")
@@ -106,13 +106,9 @@ public class ExtractorController {
     }
 
     private void validateTask(ExtractorTask task) {
-        System.out.println("ic");
         validateTilesetsName(task.getTilesetsName());
-        System.out.println("name");
         validateMinCompliance(task.getMinCompliance());
-        System.out.println("compl");
         validateUnique(task);
-        System.out.println("all");
     }
 
     private void validateUnique(ExtractorTask task) {
@@ -142,9 +138,7 @@ public class ExtractorController {
     }
 
     private void validateTilesetsName(String tilesetsName) {
-        try {
-            ImageHelper.getResourcePath("tilesets/" + tilesetsName);
-        } catch (URISyntaxException | NullPointerException e) {
+        if (!tilesetSupplier.hasTilesetsCategory(tilesetsName)) {
             throw new BadTilesetsNameException();
         }
     }
@@ -163,8 +157,7 @@ public class ExtractorController {
     private BufferedImage getRemoteMap(RemoteTaskInputData inputData) {
         try {
             ImageDetailsView image = imageHolderAccessor.getImageByName(inputData.getMapFileName());
-            ByteArrayInputStream bis = new ByteArrayInputStream(image.getContent());
-            return ImageIO.read(bis);
+            return pl.longhorn.imageholderclient.ImageHelper.getBufferedImage(image);
         } catch (IOException | UnirestException e) {
             throw new MapNotExistException();
         }

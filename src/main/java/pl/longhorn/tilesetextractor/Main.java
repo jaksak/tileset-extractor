@@ -3,6 +3,7 @@ package pl.longhorn.tilesetextractor;
 import lombok.val;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
+import pl.longhorn.tilesetextractor.tileset.TilesetSupplier;
 import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
 import java.io.IOException;
@@ -12,7 +13,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         TilesetExtractor tilesetExtractor = new TilesetExtractor();
-        Tilesets tilesets = new Tilesets("original");
+        TilesetSupplier tilesetSupplier = new TilesetSupplier();
+        Tilesets tilesets = tilesetSupplier.getTilesets("original");
         val mapImage = ImageHelper.getImage("maps/map.png");
         val extractorParam = new TilesetExtractorParam(tilesets, mapImage, 15);
         val imageResult = tilesetExtractor.run(extractorParam);

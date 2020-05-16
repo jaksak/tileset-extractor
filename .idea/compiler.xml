@@ -6,16 +6,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="tileset-extractor-mvn" />
+        <module name="tileset-extractor" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="tileset-extractor-mvn" target="11" />
+      <module name="tileset-extractor" target="11" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="tileset-extractor-mvn" options="-parameters" />
+      <module name="tileset-extractor" options="-parameters" />
     </option>
   </component>
 </project>

@@ -4,12 +4,7 @@ import lombok.val;
 import pl.longhorn.tilesetextractor.ImageHelper;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -19,20 +14,11 @@ public class Tilesets {
     private List<Tileset> tilesets = new LinkedList<>();
     private int nextId = 0;
 
-    public Tilesets(String tilesetDirectory) throws URISyntaxException, IOException {
-        Files.walk(ImageHelper.getResourcePath("tilesets/" + tilesetDirectory))
-                .filter(Files::isRegularFile)
-                .forEach(this::addTilesets);
-    }
-
-    private void addTilesets(Path path) {
-        try {
-            val tilesetsImage = ImageIO.read(path.toFile());
-            ImageHelper.split(tilesetsImage)
-                    .forEach(this::tryAddTileset);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Tilesets(List<BufferedImage> imageTilesets) {
+        imageTilesets.stream()
+                .map(ImageHelper::split)
+                .flatMap(i -> i)
+                .forEach(this::tryAddTileset);
     }
 
     private void tryAddTileset(BufferedImage image) {

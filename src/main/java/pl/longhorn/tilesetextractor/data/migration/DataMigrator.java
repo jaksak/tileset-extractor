@@ -21,14 +21,15 @@ public class DataMigrator implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         imageHolderAccessor.addContext(ProjectConfig.IMAGE_CONTEXT);
-        Files.walk(ImageHelper.getResourcePath("maps"))
+        String tilesetsName = "user";
+        Files.walk(ImageHelper.getResourcePath("tilesets/" + tilesetsName))
                 .filter(path -> Files.isRegularFile(path))
-                .forEach(this::addImage);
+                .forEach(path -> addImage(path, tilesetsName));
         System.out.println("Finish adding all data!");
     }
 
     @SneakyThrows
-    private void addImage(Path path) {
+    private void addImage(Path path, String tilesetsName) {
         val content = Files.readAllBytes(path);
         val imageInputData = ImageInputData.builder()
                 .content(content)
@@ -38,14 +39,14 @@ public class DataMigrator implements CommandLineRunner {
         val localNameInputData = LocalNameInputData.builder()
                 .contextName(ProjectConfig.IMAGE_CONTEXT)
                 .imageId(imageId)
-                .name(getBaseName(path))
-                .category("maps")
+                .name(getName(path, tilesetsName))
+                .category("tilesets")
                 .build();
         imageHolderAccessor.addLocalName(localNameInputData);
     }
 
-    private String getBaseName(Path path) {
+    private String getName(Path path, String tilesetsName) {
         val fullName = path.getFileName().toString();
-        return fullName.substring(0, fullName.lastIndexOf('.'));
+        return tilesetsName + " " + fullName;
     }
 }

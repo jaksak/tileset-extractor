@@ -1,5 +1,6 @@
 package pl.longhorn.tilesetextractor.task;
 
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.tinylog.Logger;
@@ -7,25 +8,24 @@ import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractor;
 import pl.longhorn.tilesetextractor.extractor.TilesetExtractorParam;
 import pl.longhorn.tilesetextractor.map.painter.DiffPainter;
+import pl.longhorn.tilesetextractor.tileset.TilesetSupplier;
 import pl.longhorn.tilesetextractor.tileset.Tilesets;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Service
+@RequiredArgsConstructor
 public class TaskService {
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private LimitedQueue<ExtractorTask> tasks = new LimitedQueue<>(15);
-    private TilesetExtractor tilesetExtractor = new TilesetExtractor();
-    private Map<String, Tilesets> tilesetsByName = new HashMap<>();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final LimitedQueue<ExtractorTask> tasks = new LimitedQueue<>(15);
+    private final TilesetExtractor tilesetExtractor = new TilesetExtractor();
+
+    private final TilesetSupplier tilesetSupplier;
 
     public void addTask(ExtractorTask task) {
         if (isNotBusy()) {
@@ -86,7 +86,7 @@ public class TaskService {
     private Tilesets processPrepareTilesets(ExtractorTask task) {
         task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.PREPARE_TILESETS);
-        return getTilesets(task.getTilesetsName());
+        return tilesetSupplier.getTilesets(task.getTilesetsName());
     }
 
     private boolean isNotBusy() {
@@ -103,28 +103,6 @@ public class TaskService {
         return tasks.stream()
                 .filter(task -> task.getId().equals(id))
                 .findAny();
-    }
-
-    private synchronized Tilesets getTilesets(String tilesetsName) {
-        Tilesets tilesets = tilesetsByName.get(tilesetsName);
-        if (tilesets == null) {
-            tilesets = createTilesets(tilesetsName);
-        }
-        return tilesets;
-    }
-
-    private Tilesets createTilesets(String tilesetsName) {
-        try {
-            return createTilesetsInternal(tilesetsName);
-        } catch (IOException | URISyntaxException e) {
-            throw new BadTilesetsNameException();
-        }
-    }
-
-    private Tilesets createTilesetsInternal(String tilesetsName) throws IOException, URISyntaxException {
-        Tilesets tilesets = new Tilesets(tilesetsName);
-        tilesetsByName.put(tilesetsName, tilesets);
-        return tilesets;
     }
 
     public void remove(String id) {
