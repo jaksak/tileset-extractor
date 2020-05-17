@@ -51,7 +51,7 @@ public class TilesetSupplier {
 
     private List<BufferedImage> getRemoteImages(String tilesetsName) {
         try {
-            val imageIds = textHolderAccessor.getByName(tilesetsName, new GenericType<List<String>>() {
+            val imageIds = textHolderAccessor.getContentByName(tilesetsName, new GenericType<List<String>>() {
             });
             return imageIds.stream()
                     .map(this::getImage)
@@ -63,6 +63,7 @@ public class TilesetSupplier {
 
     private BufferedImage getImage(String id) {
         try {
+            Logger.info("Downloading remote image with id " + id);
             return ImageHelper.getBufferedImage(imageHolderAccessor.getImageById(id));
         } catch (IOException e) {
             Logger.error(e);

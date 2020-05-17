@@ -11,6 +11,7 @@ import pl.longhorn.data.holder.client.image.ImageHolderAccessor;
 import pl.longhorn.data.holder.client.image.ImageHolderAccessorImpl;
 import pl.longhorn.data.holder.client.util.ImageHelper;
 import pl.longhorn.data.holder.client.util.LazyInitializer;
+import pl.longhorn.data.holder.client.util.LazySynchronizedInitializer;
 import pl.longhorn.data.holder.common.image.ImageDetailsView;
 import pl.longhorn.data.holder.common.image.ImageListView;
 import pl.longhorn.tilesetextractor.ProjectConfig;
@@ -34,7 +35,7 @@ public class ExtractorController {
     private final TilesetSupplier tilesetSupplier;
 
     private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
-    private final LazyInitializer<List<String>> remoteMapsNames = new LazyInitializer<>(this::getMapNamesRemotely);
+    private final LazySynchronizedInitializer<List<String>> remoteMapsNames = new LazySynchronizedInitializer<>(this::getMapNamesRemotely);
 
     @PostMapping("task/remote")
     public TaskView addTask(@RequestBody RemoteTaskInputData inputData) {
@@ -100,7 +101,7 @@ public class ExtractorController {
     }
 
     private List<String> getMapNamesRemotely() {
-        return imageHolderAccessor.getImagesByCategory("maps").stream()
+        return imageHolderAccessor.getImagesByCategory("map").stream()
                 .map(ImageListView::getName)
                 .filter(name -> !name.contains("dom") && !name.contains("jask"))
                 .collect(Collectors.toList());
@@ -157,7 +158,7 @@ public class ExtractorController {
 
     private BufferedImage getRemoteMap(RemoteTaskInputData inputData) {
         try {
-            ImageDetailsView image = imageHolderAccessor.getImageByName(inputData.getMapFileName());
+            ImageDetailsView image = imageHolderAccessor.getImageByNameAndCategory(inputData.getMapFileName(), "map");
             return ImageHelper.getBufferedImage(image);
         } catch (IOException | UnirestException e) {
             throw new MapNotExistException();
