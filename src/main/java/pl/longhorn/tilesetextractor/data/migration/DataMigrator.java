@@ -12,7 +12,7 @@ import pl.longhorn.data.holder.client.text.TextHolderAccessor;
 import pl.longhorn.data.holder.client.text.TextHolderAccessorImpl;
 import pl.longhorn.data.holder.common.image.ImageListView;
 import pl.longhorn.data.holder.common.image.UpdateLocalNameInputData;
-import pl.longhorn.data.holder.common.text.TextMetaData;
+import pl.longhorn.data.holder.common.text.TextMetaInputData;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 
 import java.util.HashMap;
@@ -58,7 +58,7 @@ public class DataMigrator implements CommandLineRunner {
     }
 
     private void save(Map.Entry<String, LinkedList<String>> categoryWithImageIds) {
-        TextMetaData textMetaData = TextMetaData.builder()
+        TextMetaInputData textMetaData = TextMetaInputData.builder()
                 .name(categoryWithImageIds.getKey())
                 .category("tileset")
                 .build();
