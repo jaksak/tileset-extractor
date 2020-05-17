@@ -16,10 +16,10 @@
         <h2>Task list</h2>
     </div>
     <div class="row header">
-        <h6>It works slowly, seriously!</h6>
+        <h6>It works slowly, but works!</h6>
     </div>
     <div class="row">
-        <div class="col">
+        <div class="col-lg-9 col-sm-12">
             <table class="table">
                 <thead>
                 <tr>
@@ -27,7 +27,7 @@
                     <th scope="col">Status</th>
                     <th scope="col">Input name</th>
                     <th scope="col">Tilesets name</th>
-                    <th scope="col">Min. compliance</th>
+                    <th scope="col">Min. comp.</th>
                     <th scope="col">Time</th>
                     <th scope="col">Action</th>
                 </tr>
@@ -36,63 +36,67 @@
                 </tbody>
             </table>
         </div>
-        <div class="col">
-            <h2>Add local task</h2>
-            <form>
-                <div class="form-group">
-                    <label for="addLocalTaskFile">Map</label>
-                    <input class="form-control-file" id="addLocalTaskFile" name="file" type="file">
-                    <small class="form-text text-muted" id="addLocalTaskFileHelp">Max size: 1MB</small>
-                </div>
-                <div class="form-group">
-                    <label for="addLocalTaskTilesetsName">Choose tilesets</label>
-                    <select class="form-control" id="addLocalTaskTilesetsName" name="tilesetsName">
-                        <option value="user">User tilesets</option>
-                        <option value="original">Original tilesets</option>
-                        <option value="choice">Own choice</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="deprecated" for="addLocalTaskMinCompliance">Minimum compliance</label>
-                    <input class="form-control" id="addLocalTaskMinCompliance" max="99" min="1" type="number"
-                           value="1">
-                    <small class="form-text text-muted">You don't want to use it :)</small>
-                </div>
-                <div class="custom-control custom-switch">
-                    <input class="custom-control-input" id="addLocalTaskHasDiff" name="hasDiff" type="checkbox">
-                    <label class="custom-control-label" for="addLocalTaskHasDiff">Create diff</label>
-                </div>
-                <button class="btn btn-primary" id="addLocalTaskSubmit" type="button">Submit</button>
-            </form>
-            <br>
-            <br>
-            <h2>Add remote task</h2>
-            <form id="addRemoteTaskForm">
-                <div class="form-group">
-                    <label for="addRemoteTaskMap">Map</label>
-                    <input class="form-control" id="addRemoteTaskMap" name="mapFileName" type="text">
-                    <small class="form-text text-muted" id="addRemoteTaskMapHelp">Name completition available</small>
-                </div>
-                <div class="form-group">
-                    <label for="addRemoteTaskTilesetsName">Choose tilesets</label>
-                    <select class="form-control" id="addRemoteTaskTilesetsName" name="tilesetsName">
-                        <option value="user">User tilesets</option>
-                        <option value="original">Original tilesets</option>
-                        <option value="choice">Own choice</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="deprecated" for="addRemoteTaskMinCompliance">Minimum compliance</label>
-                    <input class="form-control" id="addRemoteTaskMinCompliance" max="99" min="1" name="minCompliance"
-                           type="number" value="1">
-                    <small class="form-text text-muted">You don't want to use it :)</small>
-                </div>
-                <div class="custom-control custom-switch">
-                    <input class="custom-control-input" id="addRemoteTaskHasDiff" name="hasDiff" type="checkbox">
-                    <label class="custom-control-label" for="addRemoteTaskHasDiff">Create diff</label>
-                </div>
-                <button class="btn btn-primary" id="addRemoteTaskSubmit" type="button">Submit</button>
-            </form>
+        <div class="col-lg-3 col-sm-12">
+            <div class="addTaskBox">
+                <h2>Add local task</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="addLocalTaskFile">Map</label>
+                        <input class="form-control-file" id="addLocalTaskFile" name="file" type="file">
+                        <small class="form-text text-muted" id="addLocalTaskFileHelp">Max size: 1MB</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="addLocalTaskTilesetsName">Choose tilesets</label>
+                        <select class="form-control" id="addLocalTaskTilesetsName" name="tilesetsName">
+                            <option value="user">User tilesets</option>
+                            <option value="original">Original tilesets</option>
+                            <option value="choice">Own choice</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="deprecated" for="addLocalTaskMinCompliance">Minimum compliance</label>
+                        <input class="form-control" id="addLocalTaskMinCompliance" max="99" min="1" type="number"
+                               value="1">
+                        <small class="form-text text-muted">You don't want to use it :)</small>
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input class="custom-control-input" id="addLocalTaskHasDiff" name="hasDiff" type="checkbox">
+                        <label class="custom-control-label" for="addLocalTaskHasDiff">Create diff</label>
+                    </div>
+                    <button class="btn btn-primary" id="addLocalTaskSubmit" type="button">Submit</button>
+                </form>
+            </div>
+            <div class="addTaskBox">
+                <h2>Add remote task</h2>
+                <form id="addRemoteTaskForm">
+                    <div class="form-group">
+                        <label for="addRemoteTaskMap">Map</label>
+                        <input class="form-control" id="addRemoteTaskMap" name="mapFileName" type="text">
+                        <small class="form-text text-muted" id="addRemoteTaskMapHelp">Name completition
+                            available</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="addRemoteTaskTilesetsName">Choose tilesets</label>
+                        <select class="form-control" id="addRemoteTaskTilesetsName" name="tilesetsName">
+                            <option value="user">User tilesets</option>
+                            <option value="original">Original tilesets</option>
+                            <option value="choice">Own choice</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="deprecated" for="addRemoteTaskMinCompliance">Minimum compliance</label>
+                        <input class="form-control" id="addRemoteTaskMinCompliance" max="99" min="1"
+                               name="minCompliance"
+                               type="number" value="1">
+                        <small class="form-text text-muted">You don't want to use it :)</small>
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input class="custom-control-input" id="addRemoteTaskHasDiff" name="hasDiff" type="checkbox">
+                        <label class="custom-control-label" for="addRemoteTaskHasDiff">Create diff</label>
+                    </div>
+                    <button class="btn btn-primary" id="addRemoteTaskSubmit" type="button">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

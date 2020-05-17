@@ -5,17 +5,17 @@ import pl.longhorn.tilesetextractor.ImageHelper;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 
 import java.awt.image.BufferedImage;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 public class Tilesets {
 
-    private List<Tileset> tilesets = new LinkedList<>();
+    private List<Tileset> tilesets = new CopyOnWriteArrayList<>();
     private int nextId = 0;
 
     public Tilesets(List<BufferedImage> imageTilesets) {
-        imageTilesets.stream()
+        imageTilesets.parallelStream()
                 .map(ImageHelper::split)
                 .flatMap(i -> i)
                 .forEach(this::tryAddTileset);
@@ -25,13 +25,22 @@ public class Tilesets {
         val imageRgb = ImageHelper.getRgb(image);
         int nonAlphaPixels = getNonAlpaPixels(imageRgb);
         nextId++;
+        val newTileset = new Tileset(nextId, image, nonAlphaPixels, getGroundProbability(imageRgb, nonAlphaPixels), imageRgb);
         if (nonAlphaPixels > 0 && isUnique(imageRgb)) {
-            val newTileset = new Tileset(nextId, image, nonAlphaPixels, getGroundProbability(imageRgb, nonAlphaPixels), imageRgb);
+            addUnique(newTileset);
+        }
+    }
+
+    private synchronized void addUnique(Tileset newTileset) {
+        if (isUnique(newTileset.getRgbCache())) {
             tilesets.add(newTileset);
         }
     }
 
     private int getGroundProbability(int[][] imageRgb, int nonAlphaPixels) {
+        if (nonAlphaPixels == 0) {
+            return 0;
+        }
         int baseProbability = 0;
         int widthMiddle = ProjectConfig.TILESET_WIDTH / 2;
         int heightMiddle = ProjectConfig.TILESET_HEIGHT / 2;

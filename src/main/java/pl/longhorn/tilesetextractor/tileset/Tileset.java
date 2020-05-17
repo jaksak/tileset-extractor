@@ -7,11 +7,11 @@ import java.awt.image.BufferedImage;
 
 @Value
 public class Tileset implements CachedImage {
-    private final int id;
-    private final BufferedImage image;
-    private final int nonAlphaPixels;
-    private final int groundProbability;
-    private final int[][] rgbCache;
+    private int id;
+    private BufferedImage image;
+    private int nonAlphaPixels;
+    private int groundProbability;
+    private int[][] rgbCache;
 
     @Override
     public int getWidth() {

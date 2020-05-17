@@ -19,6 +19,10 @@ body {
 }
 
 .header {
-    margin-left: auto;
     margin-right: auto;
+    margin-left: 7px;
+}
+
+.addTaskBox {
+    padding-bottom: 40px;
 }

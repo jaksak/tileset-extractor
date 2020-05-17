@@ -20,7 +20,6 @@ public class MapPainter {
             int width = CoordinatesFinder.getWidth(i, entriesInRow);
             int height = CoordinatesFinder.getHeight(i, entriesInRow);
             val elements = elementIterator.next().getElements();
-            //elements.sort(Collections.reverseOrder(Comparator.comparingInt(element -> element.getTileset().getGroundProbability())));
             elements.sort(MapPainter::compareGroundAndAmount);
             elements.forEach(element -> draw(element, width, height, graphic));
         }
