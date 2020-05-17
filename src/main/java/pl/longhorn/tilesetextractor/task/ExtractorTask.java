@@ -2,7 +2,7 @@ package pl.longhorn.tilesetextractor.task;
 
 import lombok.Getter;
 import lombok.Setter;
-import pl.longhorn.imageholderclient.LazyInitializer;
+import pl.longhorn.data.holder.client.util.LazyInitializer;
 
 import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;

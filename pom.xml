@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>pl.longhorn</groupId>
-            <artifactId>image-holder-client</artifactId>
+            <artifactId>data-holder-client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

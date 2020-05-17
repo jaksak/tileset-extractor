@@ -2,18 +2,15 @@ package pl.longhorn.tilesetextractor.tileset;
 
 import lombok.val;
 import org.springframework.stereotype.Component;
-import pl.longhorn.imageholderclient.ImageHelper;
-import pl.longhorn.imageholderclient.ImageHolderAccessorImpl;
-import pl.longhorn.imageholdercommon.ImageDetailsView;
-import pl.longhorn.imageholdercommon.ImageListView;
+import pl.longhorn.data.holder.client.image.ImageHolderAccessorImpl;
+import pl.longhorn.data.holder.client.util.ImageHelper;
+import pl.longhorn.data.holder.common.image.ImageDetailsView;
+import pl.longhorn.data.holder.common.image.ImageListView;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class TilesetSupplier {
@@ -50,11 +47,7 @@ public class TilesetSupplier {
 
     public Tilesets getTilesets(String tilesetsName) {
         Tilesets tilesets = tilesetsByCategory.get(tilesetsName);
-        if (tilesets == null) {
-            return computeTilesets(tilesetsName);
-        } else {
-            return tilesets;
-        }
+        return Objects.requireNonNullElseGet(tilesets, () -> computeTilesets(tilesetsName));
     }
 
     private Tilesets computeTilesets(String tilesetsName) {

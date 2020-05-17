@@ -3,11 +3,11 @@ package pl.longhorn.tilesetextractor.data.migration;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.boot.CommandLineRunner;
-import pl.longhorn.imageholderclient.ImageHolderAccessor;
-import pl.longhorn.imageholderclient.ImageHolderAccessorImpl;
-import pl.longhorn.imageholdercommon.ImageExtension;
-import pl.longhorn.imageholdercommon.ImageInputData;
-import pl.longhorn.imageholdercommon.LocalNameInputData;
+import pl.longhorn.data.holder.client.image.ImageHolderAccessor;
+import pl.longhorn.data.holder.client.image.ImageHolderAccessorImpl;
+import pl.longhorn.data.holder.common.image.ImageExtension;
+import pl.longhorn.data.holder.common.image.ImageInputData;
+import pl.longhorn.data.holder.common.image.LocalNameInputData;
 import pl.longhorn.tilesetextractor.ImageHelper;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 

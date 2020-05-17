@@ -7,11 +7,12 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import pl.longhorn.imageholderclient.ImageHolderAccessor;
-import pl.longhorn.imageholderclient.ImageHolderAccessorImpl;
-import pl.longhorn.imageholderclient.LazyInitializer;
-import pl.longhorn.imageholdercommon.ImageDetailsView;
-import pl.longhorn.imageholdercommon.ImageListView;
+import pl.longhorn.data.holder.client.image.ImageHolderAccessor;
+import pl.longhorn.data.holder.client.image.ImageHolderAccessorImpl;
+import pl.longhorn.data.holder.client.util.ImageHelper;
+import pl.longhorn.data.holder.client.util.LazyInitializer;
+import pl.longhorn.data.holder.common.image.ImageDetailsView;
+import pl.longhorn.data.holder.common.image.ImageListView;
 import pl.longhorn.tilesetextractor.ProjectConfig;
 import pl.longhorn.tilesetextractor.tileset.TilesetSupplier;
 
@@ -157,7 +158,7 @@ public class ExtractorController {
     private BufferedImage getRemoteMap(RemoteTaskInputData inputData) {
         try {
             ImageDetailsView image = imageHolderAccessor.getImageByName(inputData.getMapFileName());
-            return pl.longhorn.imageholderclient.ImageHelper.getBufferedImage(image);
+            return ImageHelper.getBufferedImage(image);
         } catch (IOException | UnirestException e) {
             throw new MapNotExistException();
         }
