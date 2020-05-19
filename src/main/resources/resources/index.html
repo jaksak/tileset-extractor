@@ -8,6 +8,7 @@
     <script src="serializeArray.js"></script>
     <script src="autocomplete.js"></script>
     <script src="taskRow.js"></script>
+    <script src="taskProgress.js"></script>
     <link href="favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
@@ -18,11 +19,11 @@
     <div class="row header">
         <h6>It works slowly, but works!</h6>
     </div>
-    <div id="alertContainer">
-        <div class="alert" id="alertTemplate" role="alert"></div>
-    </div>
     <div class="row">
         <div class="col-lg-9 col-sm-12">
+            <div id="alertContainer">
+                <div class="alert" id="alertTemplate" role="alert"></div>
+            </div>
             <table class="table">
                 <thead>
                 <tr>
@@ -38,6 +39,14 @@
                 <tbody id="taskListContent">
                 </tbody>
             </table>
+            <div id="taskStatusContainer">
+                <h2>Current task status</h2>
+                <div class="progress">
+                    <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" class="progress-bar"
+                         id="taskProgressBar" role="progressbar" style="width: 25%;">25%
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-lg-3 col-sm-12">
             <div class="addTaskBox col-lg-11">

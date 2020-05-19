@@ -42,3 +42,10 @@ body {
     opacity: 1;
     transition: 1s opacity;
 }
+
+#taskStatusContainer {
+    opacity: 0;
+    position: sticky;
+    bottom: 1vh;
+    background-color: #002b36;
+}

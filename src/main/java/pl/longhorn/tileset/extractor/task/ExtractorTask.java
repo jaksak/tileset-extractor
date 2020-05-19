@@ -21,6 +21,7 @@ public class ExtractorTask {
     private LocalDateTime time;
     private int minCompliance;
     private boolean hasDiff;
+    private LocalDateTime startTime;
 
     public ExtractorTask(String tilesetsName, String inputName, LazyInitializer<BufferedImage> input, int minCompliance, boolean hasDiff) {
         this.id = UUID.randomUUID().toString();

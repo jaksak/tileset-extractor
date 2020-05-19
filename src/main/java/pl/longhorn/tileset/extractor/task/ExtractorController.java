@@ -15,6 +15,7 @@ import pl.longhorn.data.holder.client.util.LazySynchronizedInitializer;
 import pl.longhorn.data.holder.common.image.ImageDetailsView;
 import pl.longhorn.data.holder.common.image.ImageListView;
 import pl.longhorn.tileset.extractor.ProjectConfig;
+import pl.longhorn.tileset.extractor.prediction.PredictionTimeService;
 import pl.longhorn.tileset.extractor.tileset.TilesetSupplier;
 
 import javax.imageio.ImageIO;
@@ -33,7 +34,7 @@ public class ExtractorController {
 
     private final TaskService taskService;
     private final TilesetSupplier tilesetSupplier;
-
+    private final PredictionTimeService predictionTimeService;
     private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
     private final LazySynchronizedInitializer<List<String>> remoteMapsNames = new LazySynchronizedInitializer<>(this::getMapNamesRemotely);
 
@@ -54,10 +55,14 @@ public class ExtractorController {
     }
 
     @GetMapping("task")
-    public List<TaskView> getTasks() {
-        return taskService.getTasks().stream()
+    public TaskListView getTasks() {
+        val tasks = taskService.getTasks().stream()
                 .map(TaskView::new)
                 .collect(Collectors.toList());
+        return TaskListView.builder()
+                .tasks(tasks)
+                .prediction(predictionTimeService.getPrediction())
+                .build();
     }
 
     @GetMapping("map/remote")

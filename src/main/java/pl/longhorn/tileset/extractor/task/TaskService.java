@@ -8,11 +8,13 @@ import pl.longhorn.tileset.extractor.ProjectConfig;
 import pl.longhorn.tileset.extractor.extractor.TilesetExtractor;
 import pl.longhorn.tileset.extractor.extractor.TilesetExtractorParam;
 import pl.longhorn.tileset.extractor.map.painter.DiffPainter;
+import pl.longhorn.tileset.extractor.prediction.PredictionTimeService;
 import pl.longhorn.tileset.extractor.tileset.TilesetSupplier;
 import pl.longhorn.tileset.extractor.tileset.Tilesets;
 
 import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,7 +26,7 @@ public class TaskService {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final LimitedQueue<ExtractorTask> tasks = new LimitedQueue<>(15);
     private final TilesetExtractor tilesetExtractor = new TilesetExtractor();
-
+    private final PredictionTimeService predictionTimeService;
     private final TilesetSupplier tilesetSupplier;
 
     public void addTask(ExtractorTask task) {
@@ -39,6 +41,7 @@ public class TaskService {
 
     private void processTask(ExtractorTask task) {
         try {
+            task.setStartTime(LocalDateTime.now());
             processTaskInternal(task);
         } catch (Exception e) {
             task.setStatus(ExtractorTaskStatus.ERROR);
@@ -72,6 +75,7 @@ public class TaskService {
     private void processPostTask(ExtractorTask task) {
         task.setTime(LocalDateTime.now());
         task.setStatus(ExtractorTaskStatus.FINISHED);
+        predictionTimeService.addDelta(ChronoUnit.MILLIS.between(task.getStartTime(), LocalDateTime.now()));
     }
 
     private BufferedImage processExtractor(ExtractorTask task, Tilesets tilesets) {

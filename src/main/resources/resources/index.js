@@ -14,9 +14,10 @@ document.getElementById('addLocalTaskSubmit').addEventListener('click', function
                 result.json().then(jsonResult => showErrorAlert(jsonResult.message));
             } else {
                 refreshTaskData();
+                showAlert();
             }
         })
-        .catch(result => showErrorAlert(result));
+        .catch(result => prepareErrorAlert(result));
 });
 
 document.getElementById("addRemoteTaskSubmit").addEventListener("click", function () {
@@ -38,12 +39,13 @@ document.getElementById("addRemoteTaskSubmit").addEventListener("click", functio
     })
         .then(result => {
             if (!result.ok) {
-                result.json().then(jsonResult => showErrorAlert(jsonResult.message));
+                result.json().then(jsonResult => showErrorAlert(jsonResult.message)).catch(result => prepareErrorAlert(result));
             } else {
                 refreshTaskData();
+                showAlert();
             }
         })
-        .catch(result => showErrorAlert(result));
+        .catch(result => prepareErrorAlert(result));
 });
 
 function showImageTooltip(event, source) {
@@ -80,11 +82,13 @@ function deleteTask(id) {
             .then(result => {
                 if (result.ok) {
                     refreshTaskData();
+                    showAlert();
                 } else {
                     result.json()
-                        .then(json => showErrorAlert(json.message));
+                        .then(json => showErrorAlert(json.message))
+                        .catch(result => prepareErrorAlert(result));
                 }
-            }).catch(result => showErrorAlert(result));
+            }).catch(result => prepareErrorAlert(result));
     }
 }
 
@@ -121,10 +125,13 @@ function removeTasksAfterOrEquals(order) {
     }
 }
 
-function updateTasks(freshTask) {
+const taskProgress = new TaskProgress(document.getElementById('taskStatusContainer'), document.getElementById('taskProgressBar'));
+
+function updateTasks(taskListView) {
     let order = 0;
-    freshTask.forEach(content => updateTask(order++, content));
+    taskListView.tasks.forEach(content => updateTask(order++, content));
     removeTasksAfterOrEquals(order);
+    taskProgress.update(taskListView);
 }
 
 function refreshTaskData() {
@@ -133,7 +140,7 @@ function refreshTaskData() {
             .then(result => updateTasks(result)))
 }
 
-window.setInterval(refreshTaskData, 60_000);
+window.setInterval(refreshTaskData, 1_000);
 refreshTaskData();
 
 fetch('map/remote')
@@ -145,7 +152,7 @@ fetch('map/remote')
             result.json()
                 .then(json => showErrorAlert(json.message))
         }
-    });
+    }).catch(result => prepareErrorAlert(result));
 
 const alertTemplate = document.getElementById('alertTemplate').cloneNode();
 const alertContainer = document.getElementById('alertContainer');
@@ -160,6 +167,26 @@ function showAlert(message, style) {
     window.setTimeout(() => alertContainer.removeChild(alert), 6000);
 }
 
-function showErrorAlert(httpCode) {
-    showAlert(httpCode, 'alert-danger');
+const defaultMessage = 'Something went wrong.';
+
+function showErrorAlert(code) {
+    const message = errorCodesToMessage[code];
+    if (message === undefined) {
+        showAlert(defaultMessage, 'alert-danger');
+    } else {
+        showAlert(message, 'alert-danger');
+    }
 }
+
+function prepareErrorAlert(result) {
+    const parsedResult = JSON.parse(result);
+    showErrorAlert(parsedResult.message);
+}
+
+const errorCodesToMessage = {
+    'illegalMinCompliance': 'Invalid value in minimum compliance field.',
+    'mapName': 'Map not exist.',
+    'fileSize': 'File is too large.',
+    'repeatedTask': 'Task should be unique.',
+    'busy': 'Exceeded max pending task.'
+};
