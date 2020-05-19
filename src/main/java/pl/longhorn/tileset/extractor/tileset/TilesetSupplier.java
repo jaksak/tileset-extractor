@@ -27,6 +27,7 @@ public class TilesetSupplier {
 
     private final Map<String, Tilesets> tilesetsByCategory = new HashMap<>();
     private final Map<String, List<BufferedImage>> notParsedImagesByCategory = new HashMap<>();
+    private final Map<String, BufferedImage> imagesByIds = new HashMap<>();
     private final ImageHolderAccessor imageHolderAccessor = new ImageHolderAccessorImpl(ProjectConfig.IMAGE_CONTEXT);
     private final TextHolderAccessor textHolderAccessor = new TextHolderAccessorImpl(new ObjectMapper(), ProjectConfig.IMAGE_CONTEXT);
 
@@ -62,8 +63,18 @@ public class TilesetSupplier {
     }
 
     private BufferedImage getImage(String id) {
+        BufferedImage imageFromCache = imagesByIds.get(id);
+        if (imageFromCache == null) {
+            BufferedImage image = getRemoteImage(id);
+            imagesByIds.put(id, image);
+            return image;
+        }
+        return imageFromCache;
+    }
+
+    private BufferedImage getRemoteImage(String id) {
+        Logger.info("Downloading remote image with id " + id);
         try {
-            Logger.info("Downloading remote image with id " + id);
             return ImageHelper.getBufferedImage(imageHolderAccessor.getImageById(id));
         } catch (IOException e) {
             Logger.error(e);
