@@ -140,7 +140,7 @@ function refreshTaskData() {
             .then(result => updateTasks(result)))
 }
 
-window.setInterval(refreshTaskData, 1_000);
+window.setInterval(refreshTaskData, 5_000);
 refreshTaskData();
 
 fetch('map/remote')
