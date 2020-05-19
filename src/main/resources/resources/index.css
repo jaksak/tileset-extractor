@@ -26,3 +26,19 @@ body {
 .addTaskBox {
     padding-bottom: 40px;
 }
+
+#alertContainer {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+}
+
+#alertTemplate {
+    display: none;
+    opacity: 0;
+}
+
+#tilesetAlert {
+    opacity: 1;
+    transition: 1s opacity;
+}

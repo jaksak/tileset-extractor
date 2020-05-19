@@ -11,12 +11,12 @@ document.getElementById('addLocalTaskSubmit').addEventListener('click', function
     })
         .then(result => {
             if (!result.ok) {
-                result.json().then(jsonResult => alert(jsonResult.message));
+                result.json().then(jsonResult => showErrorAlert(jsonResult.message));
             } else {
                 refreshTaskData();
             }
         })
-        .catch(result => alert(result));
+        .catch(result => showErrorAlert(result));
 });
 
 document.getElementById("addRemoteTaskSubmit").addEventListener("click", function () {
@@ -38,12 +38,12 @@ document.getElementById("addRemoteTaskSubmit").addEventListener("click", functio
     })
         .then(result => {
             if (!result.ok) {
-                result.json().then(jsonResult => alert(jsonResult.message));
+                result.json().then(jsonResult => showErrorAlert(jsonResult.message));
             } else {
                 refreshTaskData();
             }
         })
-        .catch(result => alert(result));
+        .catch(result => showErrorAlert(result));
 });
 
 function showImageTooltip(event, source) {
@@ -82,9 +82,9 @@ function deleteTask(id) {
                     refreshTaskData();
                 } else {
                     result.json()
-                        .then(json => alert(json.message));
+                        .then(json => showErrorAlert(json.message));
                 }
-            });
+            }).catch(result => showErrorAlert(result));
     }
 }
 
@@ -143,6 +143,23 @@ fetch('map/remote')
                 .then(json => autocomplete(document.getElementById('addRemoteTaskMap'), json))
         } else {
             result.json()
-                .then(json => alert(json.message))
+                .then(json => showErrorAlert(json.message))
         }
     });
+
+const alertTemplate = document.getElementById('alertTemplate').cloneNode();
+const alertContainer = document.getElementById('alertContainer');
+
+function showAlert(message, style) {
+    const alert = alertTemplate.cloneNode();
+    alert.id = 'tilesetAlert';
+    alert.innerText = message == null ? 'Action successfully finished.' : message;
+    alert.classList.add(style == null ? 'alert-primary' : style);
+    alertContainer.appendChild(alert);
+    window.setTimeout(() => alert.style.opacity = 0, 5000);
+    window.setTimeout(() => alertContainer.removeChild(alert), 6000);
+}
+
+function showErrorAlert(httpCode) {
+    showAlert(httpCode, 'alert-danger');
+}

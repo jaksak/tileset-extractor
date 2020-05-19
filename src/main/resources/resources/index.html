@@ -18,6 +18,9 @@
     <div class="row header">
         <h6>It works slowly, but works!</h6>
     </div>
+    <div id="alertContainer">
+        <div class="alert" id="alertTemplate" role="alert"></div>
+    </div>
     <div class="row">
         <div class="col-lg-9 col-sm-12">
             <table class="table">
@@ -37,7 +40,7 @@
             </table>
         </div>
         <div class="col-lg-3 col-sm-12">
-            <div class="addTaskBox">
+            <div class="addTaskBox col-lg-11">
                 <h2>Add local task</h2>
                 <form>
                     <div class="form-group">
@@ -66,7 +69,7 @@
                     <button class="btn btn-primary" id="addLocalTaskSubmit" type="button">Submit</button>
                 </form>
             </div>
-            <div class="addTaskBox">
+            <div class="addTaskBox col-lg-11">
                 <h2>Add remote task</h2>
                 <form id="addRemoteTaskForm">
                     <div class="form-group">
