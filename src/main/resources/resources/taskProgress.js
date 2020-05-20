@@ -14,9 +14,12 @@ class TaskProgress {
         } else if (firstInProgressTask != null) {
             const operationTime = Date.now() - Date.parse(firstInProgressTask.startTime);
             if (operationTime < taskListView.prediction) {
-                this.progressBar.style.width = operationTime / taskListView.prediction * 100 + '%';
+                const progress = operationTime / taskListView.prediction * 100;
+                this.progressBar.style.width = progress + '%';
+                this.progressBar.innerText = Math.floor(progress) + '%';
             } else {
                 this.progressBar.style.width = '99%';
+                this.progressBar.innerText = 'Almost finished';
             }
             if (!this.isVisible) {
                 this.progress.style.opacity = "1";

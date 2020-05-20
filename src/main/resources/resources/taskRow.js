@@ -1,4 +1,4 @@
-const shouldDisplayRemoveTask = false;
+const shouldDisplayRemoveTaskForFinished = true;
 
 class TaskRow {
     constructor(trElement, data, rowId) {
@@ -60,14 +60,18 @@ class TaskRow {
                 diffPreview.addEventListener('click', () => window.open('./task/diff?id=' + data.id));
                 column.appendChild(diffPreview);
             }
-            if (shouldDisplayRemoveTask) {
-                const deleteInput = document.createElement('span');
-                deleteInput.className = 'badge badge-pill badge-danger';
-                deleteInput.innerText = 'Remove';
-                deleteInput.addEventListener('click', () => deleteTask(data.id));
-                column.appendChild(deleteInput);
-            }
         }
+        if (this.shouldDisplayRemoveTask(data.status)) {
+            const deleteInput = document.createElement('span');
+            deleteInput.className = 'badge badge-pill badge-danger';
+            deleteInput.innerText = 'Remove';
+            deleteInput.addEventListener('click', () => deleteTask(data.id));
+            column.appendChild(deleteInput);
+        }
+    }
+
+    shouldDisplayRemoveTask(status) {
+        return status === 'ERROR' || (status === 'FINISHED' && shouldDisplayRemoveTaskForFinished);
     }
 
     removeHtml() {
